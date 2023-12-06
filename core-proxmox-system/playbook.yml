@@ -1,0 +1,47 @@
+---
+- hosts: core_proxmox_hosts
+  become: true
+  tasks:
+    # credit: https://johnscs.com/remove-proxmox51-subscription-notice/
+    # credit: https://github.com/foundObjects/pve-nag-buster
+    - name: Modify line in file to remove nag message
+      replace:
+        path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+        regexp: 'Ext.Msg.show\(\{\s+title: gettext\(''No valid subscription''\)\,'
+        replace: "void({"
+        backup: true
+
+    - name: Ensure enterprise repo file is not present
+      file:
+        path: /etc/apt/sources.list.d/pve-enterprise.list
+        state: absent
+        
+    - name: Ensure enterprise ceph file is not present
+      file:
+        path: /etc/apt/sources.list.d/ceph.list
+        state: absent
+
+    - name: Add No Subscription Repository
+      apt_repository:
+        repo: deb http://download.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-no-subscription
+        filename: pve-no-subscription
+        state: present
+
+    - name: Restart Proxmox pveproxy
+      service:
+        name: pveproxy
+        state: restarted
+
+    - name: Update Apt
+      apt:
+        autoclean: true
+        autoremove: true
+        clean: true
+        update_cache: true
+        cache_valid_time: 3600
+        name: "*"
+        state: latest
+        pkg:
+          - emacs-nox
+          - net-tools
+          - htop
