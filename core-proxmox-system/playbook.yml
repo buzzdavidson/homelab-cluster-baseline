@@ -15,7 +15,7 @@
       file:
         path: /etc/apt/sources.list.d/pve-enterprise.list
         state: absent
-        
+
     - name: Ensure enterprise ceph file is not present
       file:
         path: /etc/apt/sources.list.d/ceph.list

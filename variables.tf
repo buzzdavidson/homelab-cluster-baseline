@@ -1,35 +1,35 @@
 variable "proxmox_api_key" {
- type = string
- sensitive = true
- description = "API Key for programmatic access to proxmox"
+  type        = string
+  sensitive   = true
+  description = "API Key for programmatic access to proxmox"
 }
 
 variable "proxmox_api_url" {
- type = string
- description = "API Key for programmatic access to proxmox"
+  type        = string
+  description = "API Key for programmatic access to proxmox"
 }
 
 variable "proxmox_ssh_password" {
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
   description = "SSH Password for programmatic access to proxmox"
 }
 
 variable "proxmox_ssh_username" {
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
   description = "SSH Username for programmatic access to proxmox"
 }
 
 variable "truenas_api_key" {
- type = string
- sensitive = true
- description = "API Key for programmatic access to TrueNAS"
+  type        = string
+  sensitive   = true
+  description = "API Key for programmatic access to TrueNAS"
 }
 
 variable "truenas_api_url" {
- type = string
- description = "Base URL for TrueNAS API"
+  type        = string
+  description = "Base URL for TrueNAS API"
 }
 
 variable "vlans" {

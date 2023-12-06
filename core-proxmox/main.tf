@@ -24,7 +24,7 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
   # on the main provider definition.
   #
   # TODO: this doesn't work using storage nfs-flash, but does work using local storage
- #
+  #
   content_type = "snippets"
   datastore_id = "local"
   node_name    = "pve-04"

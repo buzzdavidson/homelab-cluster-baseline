@@ -7,25 +7,25 @@
 # }
 
 module "core-storage" {
-  source          = "./core-storage"
+  source = "./core-storage"
 }
 
 module "core-proxmox-system" {
-  source = "./core-proxmox-system"
-  depends_on = [ module.core-storage ]
+  source     = "./core-proxmox-system"
+  depends_on = [module.core-storage]
 }
 
 module "core-proxmox" {
-  source          = "./core-proxmox"
-  depends_on = [ module.core-proxmox-system ]
+  source     = "./core-proxmox"
+  depends_on = [module.core-proxmox-system]
   providers = {
     proxmox = proxmox.bpg
   }
 }
 
 module "core-dns-proxmox" {
-  source = "./core-dns-proxmox"
-  depends_on = [ module.core-proxmox ]
+  source     = "./core-dns-proxmox"
+  depends_on = [module.core-proxmox]
 }
 
 # module "rancher-proxmox" {
