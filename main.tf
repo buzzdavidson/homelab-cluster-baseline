@@ -31,6 +31,11 @@ module "core-dns-proxmox" {
   }
 }
 
+module "core-dns-config" {
+  source     = "./core-dns-config"
+  depends_on = [module.core-dns-proxmox]
+}
+
 # module "rancher-proxmox" {
 #   source          = "./rancher-proxmox"
 #   proxmox_api_key = var.proxmox_api_key
