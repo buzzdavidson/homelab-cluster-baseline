@@ -76,8 +76,8 @@ resource "proxmox_virtual_environment_vm" "dns_01" {
   name        = "core-dns-01"
   node_name   = "pve-04"
   description = "Managed by Terraform"
-  reboot      = true
-  started     = true
+  #reboot      = true
+  started = true
   clone {
     full  = true
     vm_id = proxmox_virtual_environment_vm.dns_host_template.id
@@ -97,8 +97,8 @@ resource "proxmox_virtual_environment_vm" "dns_02" {
   name        = "core-dns-02"
   node_name   = "pve-04"
   description = "Managed by Terraform"
-  reboot      = true
-  started     = true
+  #reboot      = true
+  started = true
   clone {
     full  = true
     vm_id = proxmox_virtual_environment_vm.dns_host_template.id
