@@ -6,16 +6,6 @@
 # 6. New API token created for root user
 # 7. New API token granted access to all storage (config in datacenter for each node)
 # 8. Cluster created and all nodes joined
-resource "proxmox_virtual_environment_file" "ubuntu_container_template" {
-  content_type = "iso"
-  datastore_id = "nfs-flash"
-  node_name    = "pve-04"
-
-  source_file {
-    path = "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img"
-  }
-}
-
 resource "proxmox_virtual_environment_file" "cloud_config" {
   # To clarify, this functionality uses SSH to connect to the host, as proxmox doesn't allow
   # programmatic access to create snippets.
@@ -36,7 +26,6 @@ chpasswd:
   list: |
     ubuntu:ubuntu
   expire: false
-hostname: example-hostname
 packages:
   - qemu-guest-agent
 users:
@@ -51,4 +40,11 @@ EOF
 
     file_name = "ubuntu2204.cloud-config.yaml"
   }
+}
+
+resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan" {
+  node_name = "pve-04"
+  name      = "vmbr0.100"
+
+  comment = "Managed by Terraform"
 }

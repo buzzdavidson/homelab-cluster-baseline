@@ -13,9 +13,11 @@ terraform {
 }
 
 provider "proxmox" {
-  alias     = "bpg"
-  endpoint  = var.proxmox_api_url
-  api_token = var.proxmox_api_key
+  alias    = "bpg"
+  endpoint = var.proxmox_api_url
+  #api_token = var.proxmox_api_key
+  username = "root@pam"
+  password = var.proxmox_ssh_password
   ssh {
     username = var.proxmox_ssh_username
     password = var.proxmox_ssh_password

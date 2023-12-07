@@ -26,6 +26,9 @@ module "core-proxmox" {
 module "core-dns-proxmox" {
   source     = "./core-dns-proxmox"
   depends_on = [module.core-proxmox]
+  providers = {
+    proxmox = proxmox.bpg
+  }
 }
 
 # module "rancher-proxmox" {
