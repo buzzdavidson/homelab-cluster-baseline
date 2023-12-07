@@ -42,8 +42,22 @@ EOF
   }
 }
 
-resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan" {
+resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_04" {
   node_name = "pve-04"
+  name      = "vmbr0.100"
+
+  comment = "Managed by Terraform"
+}
+
+resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_05" {
+  node_name = "pve-05"
+  name      = "vmbr0.100"
+
+  comment = "Managed by Terraform"
+}
+
+resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_10" {
+  node_name = "pve-10"
   name      = "vmbr0.100"
 
   comment = "Managed by Terraform"
