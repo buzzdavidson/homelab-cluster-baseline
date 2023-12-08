@@ -53,7 +53,7 @@ resource "proxmox_virtual_environment_vm" "dns_host_template" {
     user_account {
       username = var.vm_account_username
       password = var.vm_account_password
-      keys     = [var.cluster_public_key]
+      keys     = ["${var.cluster_public_key}"]
     }
   }
   network_device {
@@ -108,4 +108,13 @@ resource "proxmox_virtual_environment_vm" "dns_02" {
       }
     }
   }
+}
+
+resource "null_resource" "delay" {
+  # This is a hack to allow the VMs to start up and get their IP addresses before we run the Ansible script
+  provisioner "local-exec" {
+    command = "sleep 60"
+  }
+
+  depends_on = [proxmox_virtual_environment_vm.dns_01, proxmox_virtual_environment_vm.dns_02]
 }
