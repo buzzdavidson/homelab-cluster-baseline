@@ -45,3 +45,25 @@
           - emacs-nox
           - net-tools
           - htop
+          - systemd-timesyncd
+
+    - name: set timezone
+      shell: timedatectl set-timezone America/Los_Angeles
+
+    - name: Make sure timesyncd is stopped
+      systemd:
+        name: systemd-timesyncd.service
+        state: stopped
+
+    - name: Create timesyncd.conf file
+      blockinfile:
+        path: /etc/timesyncd.conf
+        block: |
+          [Time]
+          NTP={{ ntp_server }}
+          FallbackNTP={{ fallback_ntp_server }}
+
+    - name: Make sure timesyncd is started
+      systemd:
+        name: systemd-timesyncd.service
+        state: started

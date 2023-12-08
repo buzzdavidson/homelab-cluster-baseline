@@ -47,6 +47,18 @@ variable "vm_account_password" {
   description = "Password for VMs"
 }
 
+variable "domain_ntp_server" {
+  type        = string
+  description = "NTP server for domain"
+  default = "10.0.0.1"
+}
+
+variable "domain_fallback_ntp_server" {
+  type        = string
+  description = "Fallback NTP server for domain"
+  default = "time.cloudflare.com"
+}
+
 variable "vlans" {
   type = list(object({
     vlan_id   = number

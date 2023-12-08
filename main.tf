@@ -13,6 +13,8 @@ module "core-storage" {
 module "core-proxmox-system" {
   source     = "./core-proxmox-system"
   depends_on = [module.core-storage]
+  domain_ntp_server = var.domain_ntp_server
+  domain_fallback_ntp_server = var.domain_fallback_ntp_server
 }
 
 module "core-proxmox" {
@@ -24,7 +26,6 @@ module "core-proxmox" {
   cluster_public_key  = var.cluster_public_key
   vm_account_password = var.vm_account_password
   vm_account_username = var.vm_account_username
-
 }
 
 module "core-dns-proxmox" {
