@@ -11,9 +11,9 @@ module "core-storage" {
 }
 
 module "core-proxmox-system" {
-  source     = "./core-proxmox-system"
-  depends_on = [module.core-storage]
-  domain_ntp_server = var.domain_ntp_server
+  source                     = "./core-proxmox-system"
+  depends_on                 = [module.core-storage]
+  domain_ntp_server          = var.domain_ntp_server
   domain_fallback_ntp_server = var.domain_fallback_ntp_server
 }
 
@@ -40,9 +40,10 @@ module "core-dns-proxmox" {
 }
 
 module "core-dns-config" {
-  source             = "./core-dns-config"
-  depends_on         = [module.core-dns-proxmox]
-  cluster_public_key = var.cluster_public_key
+  source              = "./core-dns-config"
+  depends_on          = [module.core-dns-proxmox]
+  cluster_public_key  = var.cluster_public_key
+  vm_account_username = var.vm_account_username
 }
 
 # module "rancher-proxmox" {

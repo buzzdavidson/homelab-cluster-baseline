@@ -13,13 +13,28 @@
         cache_valid_time: 3600
         state: latest
         pkg:
+          - cloud-init
+          - cloud-initramfs-growroot
           - net-tools
           - qemu-guest-agent
           - bind9
           - bind9utils
-    - name: reboot
-      reboot:
-        reboot_timeout: 600
-        pre_reboot_delay: 0
-        post_reboot_delay: 30
-        connect_timeout: 5
+
+- hosts: proxmox_api_hosts
+  vars:
+    vm_ids:
+      - 10004
+      - 10005
+  gather_facts: false
+  tasks:
+    - name: Enable QEMU Guest Agent for DNS VMs
+      shell: |
+        {% for vm_id in vm_ids %}
+        qm set {{ vm_id }} --agent 1
+        qm restart {{ vm_id }}
+        {% endfor %}
+      register: result
+
+    - name: Show Guest Agent Update Result
+      debug:
+        var: result

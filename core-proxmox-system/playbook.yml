@@ -39,7 +39,6 @@
         clean: true
         update_cache: true
         cache_valid_time: 3600
-        name: "*"
         state: latest
         pkg:
           - emacs-nox
@@ -55,10 +54,15 @@
         name: systemd-timesyncd.service
         state: stopped
 
-    - name: Create timesyncd.conf file
-      blockinfile:
+    - name: Delete spurious timesyncd.conf file if it exists
+      file:
         path: /etc/timesyncd.conf
-        block: |
+        state: absent
+
+    - name: Create timesyncd.conf file
+      copy:
+        dest: /etc/systemd/timesyncd.conf
+        content: |
           [Time]
           NTP={{ ntp_server }}
           FallbackNTP={{ fallback_ntp_server }}
