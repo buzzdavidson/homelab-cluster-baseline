@@ -6,6 +6,26 @@
 # 6. New API token created for root user
 # 7. New API token granted access to all storage (config in datacenter for each node)
 # 8. Cluster created and all nodes joined
+
+#==================================================================================================
+# TODO ITEMS
+# [ ] - Enable gotify notifications
+#       https://pve.proxmox.com/pve-docs/chapter-notifications.html
+# [ ] - Configure HA groups and rules for core (will need to do the same for rancher) 
+#       https://pve.proxmox.com/pve-docs/chapter-ha-manager.html
+# [ ] - Enable monitoring
+# [ ] - Ensure time synchronization properly configured
+#       https://pve.proxmox.com/pve-docs/pve-admin-guide.html
+# [ ] - Configure backups
+# [ ] - Add proxmox management network as second interface
+#
+# MISC STUFF
+# set tags for VM: qm set ID --tags myfirsttag;mysecondtag
+# set tag apperarance: pvesh set /cluster/options --tag-style color-map=example:000000:FFFFFF
+# create cluster: pvecm create CLUSTERNAME
+# view cluster status: pvecm status
+# add node to cluster: from node to be added: pvecm add ciuster-ip-address
+#==================================================================================================
 resource "proxmox_virtual_environment_file" "cloud_config" {
   # To clarify, this functionality uses SSH to connect to the host, as proxmox doesn't allow
   # programmatic access to create snippets.

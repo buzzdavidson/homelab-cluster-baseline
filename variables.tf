@@ -32,6 +32,11 @@ variable "truenas_api_url" {
   description = "Base URL for TrueNAS API"
 }
 
+variable "cluster_public_key" {
+  type        = string
+  description = "Public key for cluster access"
+}
+
 variable "vlans" {
   type = list(object({
     vlan_id   = number

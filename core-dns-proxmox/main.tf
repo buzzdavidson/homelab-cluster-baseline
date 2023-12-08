@@ -7,7 +7,6 @@ resource "proxmox_virtual_environment_file" "ubuntu_cloud_image" {
   content_type = "iso"
   datastore_id = "nfs-flash"
   node_name    = "pve-04"
-
   source_file {
     path = "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img"
   }
@@ -20,15 +19,14 @@ resource "proxmox_virtual_environment_vm" "dns_host_template" {
   description = "Managed by Terraform"
   tags        = ["terraform", "ubuntu", "coreservices"]
   pool_id     = proxmox_virtual_environment_pool.operations_pool.id
-  template    = true
-  reboot      = false
-  started     = false
-
+  template    = true  # Create a VM template
+  reboot      = false # Rebooting is problematic before qemu-guest-agent is installed
+  started     = false # Don't start the VM, we want a clean system to clone from
   agent {
-    enabled = false
+    enabled = false   # Don't mark this as enabled, causes long waits in provider
   }
   audio_device {
-    enabled = false
+    enabled = false   # We don't need a sound card
   }
   cpu {
     cores   = 2
@@ -58,7 +56,7 @@ resource "proxmox_virtual_environment_vm" "dns_host_template" {
     user_account {
       username = "ubuntu"
       password = "ubuntu"
-      keys     = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHvGD0vwY5rAR/TWkAEOmszyG45e6CLKnAYy5heBY9PQC/GgvbU7/q2ERNCClC3/wTvkyJNsloBHQwk7CabG2Y/6Glnsy6c1gbp8jl05aEupw5sFeKEzoW2GZ14AppV+2YjoZl6ufz3pgVcYI9qYzW3xzzv2tUMVCnUgoKJetL109zgA3DZontOcquRcwLmGJdmCZWbq0BSri/zSuRZ+rvAGakr0IVzPd11Iirx24xUUIXIytaDHiw5M34hlB/D9movcIJ5IFG5ezX8a5HyxPUiT0vvd5yBq+4Is0kAB5ZD0IsGP+V+iuBDcPcFi62C01IRLhuuOAw26Tfi7Wr2y37"]
+      keys     = [var.cluster_public_key]
     }
   }
   network_device {
@@ -76,8 +74,9 @@ resource "proxmox_virtual_environment_vm" "dns_01" {
   name        = "core-dns-01"
   node_name   = "pve-04"
   description = "Managed by Terraform"
-  #reboot      = true
-  started = true
+  pool_id     = proxmox_virtual_environment_pool.operations_pool.id
+  reboot      = false # Rebooting is problematic before qemu-guest-agent is installed
+  started     = true  # We want to start the VM so cloud-init can do its thing
   clone {
     full  = true
     vm_id = proxmox_virtual_environment_vm.dns_host_template.id
@@ -97,8 +96,9 @@ resource "proxmox_virtual_environment_vm" "dns_02" {
   name        = "core-dns-02"
   node_name   = "pve-04"
   description = "Managed by Terraform"
-  #reboot      = true
-  started = true
+  pool_id     = proxmox_virtual_environment_pool.operations_pool.id
+  reboot      = false # Rebooting is problematic before qemu-guest-agent is installed
+  started     = true  # We want to start the VM so cloud-init can do its thing
   clone {
     full  = true
     vm_id = proxmox_virtual_environment_vm.dns_host_template.id

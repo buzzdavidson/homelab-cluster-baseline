@@ -21,6 +21,7 @@ module "core-proxmox" {
   providers = {
     proxmox = proxmox.bpg
   }
+  cluster_public_key = var.cluster_public_key
 }
 
 module "core-dns-proxmox" {
@@ -29,6 +30,7 @@ module "core-dns-proxmox" {
   providers = {
     proxmox = proxmox.bpg
   }
+  cluster_public_key = var.cluster_public_key
 }
 
 module "core-dns-config" {
