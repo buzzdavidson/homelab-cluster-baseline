@@ -4,6 +4,10 @@
 - hosts: core_dns_hosts
   become: true
   tasks:
+    - name: Wait for all hosts to be responsive
+      wait_for_connection:
+        timeout: 300
+
     - name: Update Apt
       apt:
         autoclean: true
@@ -30,11 +34,39 @@
     - name: Enable QEMU Guest Agent for DNS VMs
       shell: |
         {% for vm_id in vm_ids %}
-        qm set {{ vm_id }} --agent 1
-        qm restart {{ vm_id }}
+        qm set {{ vm_id }} --agent 1        
         {% endfor %}
       register: result
 
-    - name: Show Guest Agent Update Result
+    - name: Show result of update operation
       debug:
         var: result
+
+    - name: Stop DNS VMs
+      shell: |
+        {% for vm_id in vm_ids %}
+        qm shutdown {{ vm_id }} -forceStop
+        {% endfor %}
+      register: result
+
+    - name: Show result of stop operation
+      debug:
+        var: result
+
+    - name: Wait for VMs to stop
+      shell: |
+        {% for vm_id in vm_ids %}
+        qm wait {{ vm_id }}
+        {% endfor %}
+      register: result
+
+    - name: Show result of wait
+      debug:
+        var: result
+
+    - name: Start DNS VMs
+      shell: |
+        {% for vm_id in vm_ids %}
+        qm start {{ vm_id }} 
+        {% endfor %}
+      register: result
