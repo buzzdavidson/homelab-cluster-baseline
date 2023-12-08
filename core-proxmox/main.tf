@@ -44,13 +44,13 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
 #cloud-config
 chpasswd:
   list: |
-    ubuntu:ubuntu
+    ${var.vm_account_username}:${var.vm_account_password}
   expire: false
 packages:
   - qemu-guest-agent
 users:
   - default
-  - name: ubuntu
+  - name: ${var.vm_account_username}
     groups: sudo
     shell: /bin/bash
     ssh-authorized-keys:

@@ -21,7 +21,10 @@ module "core-proxmox" {
   providers = {
     proxmox = proxmox.bpg
   }
-  cluster_public_key = var.cluster_public_key
+  cluster_public_key  = var.cluster_public_key
+  vm_account_password = var.vm_account_password
+  vm_account_username = var.vm_account_username
+
 }
 
 module "core-dns-proxmox" {
@@ -30,7 +33,9 @@ module "core-dns-proxmox" {
   providers = {
     proxmox = proxmox.bpg
   }
-  cluster_public_key = var.cluster_public_key
+  cluster_public_key  = var.cluster_public_key
+  vm_account_password = var.vm_account_password
+  vm_account_username = var.vm_account_username
 }
 
 module "core-dns-config" {

@@ -51,8 +51,8 @@ resource "proxmox_virtual_environment_vm" "dns_host_template" {
       }
     }
     user_account {
-      username = "ubuntu"
-      password = "ubuntu"
+      username = var.vm_account_username
+      password = var.vm_account_password
       keys     = [var.cluster_public_key]
     }
   }
