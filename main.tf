@@ -34,8 +34,9 @@ module "core-dns-proxmox" {
 }
 
 module "core-dns-config" {
-  source     = "./core-dns-config"
-  depends_on = [module.core-dns-proxmox]
+  source             = "./core-dns-config"
+  depends_on         = [module.core-dns-proxmox]
+  cluster_public_key = var.cluster_public_key
 }
 
 # module "rancher-proxmox" {

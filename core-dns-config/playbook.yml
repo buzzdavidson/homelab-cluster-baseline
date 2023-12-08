@@ -1,0 +1,14 @@
+---
+- hosts: core_proxmox_hosts
+  become: true
+  tasks:
+    - name: Update Apt
+      apt:
+        autoclean: true
+        autoremove: true
+        clean: true
+        update_cache: true
+        cache_valid_time: 3600
+        name: "*"
+        state: latest
+        pkg:
