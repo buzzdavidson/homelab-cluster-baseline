@@ -23,10 +23,7 @@ resource "proxmox_virtual_environment_vm" "dns_host_template" {
   reboot      = false # Rebooting is problematic before qemu-guest-agent is installed
   started     = false # Don't start the VM, we want a clean system to clone from
   agent {
-    enabled = false   # Don't mark this as enabled, causes long waits in provider
-  }
-  audio_device {
-    enabled = false   # We don't need a sound card
+    enabled = false # Don't mark this as enabled, causes long waits in provider
   }
   cpu {
     cores   = 2

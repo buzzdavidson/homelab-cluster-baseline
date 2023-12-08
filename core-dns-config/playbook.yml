@@ -1,5 +1,7 @@
+# TODO: add task to poke proxmox to toggle qemu guest agent on for both vms and then restart vms
+# TODO: remove reboot step from core_dns_hosts
 ---
-- hosts: core_proxmox_hosts
+- hosts: core_dns_hosts
   become: true
   tasks:
     - name: Update Apt
@@ -9,6 +11,15 @@
         clean: true
         update_cache: true
         cache_valid_time: 3600
-        name: "*"
         state: latest
         pkg:
+          - net-tools
+          - qemu-guest-agent
+          - bind9
+          - bind9utils
+    - name: reboot
+      reboot:
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        connect_timeout: 5
