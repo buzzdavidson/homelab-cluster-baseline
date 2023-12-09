@@ -17,9 +17,8 @@
         pkg:
           - net-tools
           - qemu-guest-agent
-          - bind9
-          - bind9utils
-
+          - htop
+          
 - hosts: proxmox_api_hosts
   vars:
     vm_ids:
