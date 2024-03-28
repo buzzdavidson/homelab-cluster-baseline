@@ -2,7 +2,8 @@
 # 1. Proxmox nodes configured with static IPs (new installation)
 # 3. NFS storage set up in FreeNAS
 # 4. ACME set up in proxmox datacenter
-# 5. ACME certificates configured for every node
+# 5. ACME certificates configured for every node (proxmox-x.buzzdavidson.com)
+#    Note: can we automate this via api?
 # 6. New API token created for root user
 # 7. New API token granted access to all storage (config in datacenter for each node)
 # 8. Cluster created and all nodes joined
@@ -18,6 +19,7 @@
 #       https://pve.proxmox.com/pve-docs/pve-admin-guide.html
 # [ ] - Configure backups
 # [ ] - Add proxmox management network as second interface
+# [ ] - Update local storage to support snippets
 #
 # MISC STUFF
 # set tags for VM: qm set ID --tags myfirsttag;mysecondtag
@@ -37,7 +39,7 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
   #
   content_type = "snippets"
   datastore_id = "local"
-  node_name    = "pve-04"
+  node_name    = "proxmox-1"
 
   source_raw {
     data = <<EOF
@@ -62,22 +64,22 @@ EOF
   }
 }
 
-resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_04" {
-  node_name = "pve-04"
+resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_1" {
+  node_name = "proxmox-1"
   name      = "vmbr0.100"
 
   comment = "Managed by Terraform"
 }
 
-resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_05" {
-  node_name = "pve-05"
+resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_2" {
+  node_name = "proxmox-2"
   name      = "vmbr0.100"
 
   comment = "Managed by Terraform"
 }
 
-resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_10" {
-  node_name = "pve-10"
+resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_3" {
+  node_name = "proxmox-3"
   name      = "vmbr0.100"
 
   comment = "Managed by Terraform"

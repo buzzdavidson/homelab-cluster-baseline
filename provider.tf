@@ -22,16 +22,16 @@ provider "proxmox" {
     username = var.proxmox_ssh_username
     password = var.proxmox_ssh_password
     node {
-      name    = "pve-04"
-      address = "10.80.100.64"
+      name    = "proxmox-1"
+      address = "10.80.100.21"
     }
     node {
-      name    = "pve-05"
-      address = "10.80.100.65"
+      name    = "proxmox-2"
+      address = "10.80.100.22"
     }
     node {
-      name    = "pve-10"
-      address = "10.80.100.70"
+      name    = "proxmox-3"
+      address = "10.80.100.23"
     }
 
   }

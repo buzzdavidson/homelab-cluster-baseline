@@ -33,3 +33,7 @@ resource "truenas_share_nfs" "proxmox_backups" {
   mapall_user  = "pveaccess"
   mapall_group = "pveaccess"
 }
+
+// TODO: configure SMB shares
+// TODO: Set up technitium DNS server app on truenas, configure for secure DNS-OVER-TLS, configure blocking
+// TODO: Set up minio on truenas for object storage
