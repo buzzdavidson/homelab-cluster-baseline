@@ -164,6 +164,18 @@ resource "null_resource" "delay" {
   depends_on = [proxmox_virtual_environment_vm.rancher_k3s_1, proxmox_virtual_environment_vm.rancher_k3s_2]
 }
 
-# TODO: add dns entries for new hosts
-# TODO: for each host, add a second network interface for the rancher network
+resource "dns_a_record_set" "rancher_k3s_1" {
+  zone = "buzzdavidson.com."
+  name = "rancher-k3s-1"
+  addresses = [
+    "10.100.100.11"
+  ]
+}
 
+resource "dns_a_record_set" "rancher_k3s_2" {
+  zone = "buzzdavidson.com."
+  name = "rancher-k3s-2"
+  addresses = [
+    "10.100.100.12"
+  ]
+}

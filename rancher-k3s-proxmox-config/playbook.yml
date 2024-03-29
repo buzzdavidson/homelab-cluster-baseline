@@ -42,6 +42,21 @@
         name: systemd-timesyncd.service
         state: started
 
+    - name: Disable UFW
+      systemd:
+        name: ufw
+        enabled: no
+        state: stopped
+
+    - name: Disable Swap
+      ansible.builtin.command: swapoff -a
+
+    - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+        replace: '# \1'
+
     - name: Reboot instance
       ansible.builtin.reboot:
         reboot_timeout: 600

@@ -33,6 +33,7 @@ module "rancher-k3s-proxmox" {
   depends_on = [module.core-proxmox]
   providers = {
     proxmox = proxmox.bpg
+    dns     = dns
   }
   cluster_public_key  = var.cluster_public_key
   vm_account_password = var.vm_account_password
