@@ -28,6 +28,17 @@ module "core-proxmox" {
   vm_account_username = var.vm_account_username
 }
 
+module "rancher-k3s-proxmox" {
+  source     = "./rancher-k3s-proxmox"
+  depends_on = [module.core-proxmox]
+  providers = {
+    proxmox = proxmox.bpg
+  }
+  cluster_public_key  = var.cluster_public_key
+  vm_account_password = var.vm_account_password
+  vm_account_username = var.vm_account_username
+}
+
 # module "core-dns-proxmox" {
 #   source     = "./core-dns-proxmox"
 #   depends_on = [module.core-proxmox]
