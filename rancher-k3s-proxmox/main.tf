@@ -5,7 +5,7 @@ resource "proxmox_virtual_environment_pool" "rancher_pool" {
 
 resource "proxmox_virtual_environment_file" "k3s_cloud_config" {
   content_type = "snippets"
-  datastore_id = "local"
+  datastore_id = "nfs-flash"
   node_name    = "proxmox-1"
 
   source_raw {
@@ -41,18 +41,17 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   overwrite    = true
 }
 
-resource "proxmox_virtual_environment_vm" "k3s_host_template" {
-  vm_id       = 12010
-  name        = "k3s-host-template"
+resource "proxmox_virtual_environment_vm" "rancher_k3s_1" {
+  vm_id       = 12861
+  name        = "rancher-k3s-1"
   node_name   = "proxmox-1"
   description = "Managed by Terraform"
   tags        = ["terraform", "ubuntu", "rancher"]
   pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
-  template    = true  # Create a VM template
-  reboot      = false # Rebooting is problematic before qemu-guest-agent is installed
-  started     = false # Don't start the VM, we want a clean system to clone from
+  reboot      = true
+  started     = true
   agent {
-    enabled = false # Don't mark this as enabled, causes long waits in provider
+    enabled = true
   }
   cpu {
     cores   = 4
@@ -79,7 +78,8 @@ resource "proxmox_virtual_environment_vm" "k3s_host_template" {
     datastore_id = "nfs-flash"
     ip_config {
       ipv4 {
-        address = "dhcp"
+        address = "10.100.100.11/24"
+        gateway = "10.100.100.1"
       }
     }
     user_account {
@@ -98,79 +98,60 @@ resource "proxmox_virtual_environment_vm" "k3s_host_template" {
   }
 }
 
-
-resource "proxmox_virtual_environment_vm" "rancher_k3s_1" {
-  vm_id       = 12861
-  name        = "rancher-k3s-1"
-  node_name   = "proxmox-1"
-  description = "Managed by Terraform"
-  pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
-  reboot      = true
-  started     = true
-  clone {
-    full  = true
-    vm_id = proxmox_virtual_environment_vm.k3s_host_template.id
-  }
-  initialization {
-    ip_config {
-      ipv4 {
-        address = "10.100.100.11/24"
-        gateway = "10.100.100.1"
-      }
-    }
-  }
-  agent {
-    enabled = true
-  }
-}
-
 resource "proxmox_virtual_environment_vm" "rancher_k3s_2" {
   vm_id       = 12862
   name        = "rancher-k3s-2"
-  node_name   = "proxmox-1"
+  node_name   = "proxmox-2"
   description = "Managed by Terraform"
+  tags        = ["terraform", "ubuntu", "rancher"]
   pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
   reboot      = true
   started     = true
-  clone {
-    full  = true
-    vm_id = proxmox_virtual_environment_vm.k3s_host_template.id
+  agent {
+    enabled = true
+  }
+  cpu {
+    cores   = 4
+    sockets = 1
+    type    = "x86-64-v2-AES"
+  }
+  memory {
+    dedicated = 4096
+  }
+  startup {
+    order      = "1"
+    up_delay   = "0"
+    down_delay = "0"
+  }
+  disk {
+    datastore_id = "nfs-flash"
+    file_id      = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
+    interface    = "virtio0"
+    iothread     = true
+    discard      = "on"
+    size         = 10
   }
   initialization {
+    datastore_id = "nfs-flash"
     ip_config {
       ipv4 {
         address = "10.100.100.12/24"
         gateway = "10.100.100.1"
       }
     }
-  }
-  agent {
-    enabled = true
-  }
-}
-
-resource "proxmox_virtual_environment_vm" "rancher_k3s_3" {
-  vm_id       = 12863
-  name        = "rancher-k3s-3"
-  node_name   = "proxmox-1"
-  description = "Managed by Terraform"
-  pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
-  reboot      = true
-  started     = true
-  clone {
-    full  = true
-    vm_id = proxmox_virtual_environment_vm.k3s_host_template.id
-  }
-  initialization {
-    ip_config {
-      ipv4 {
-        address = "10.100.100.13/24"
-        gateway = "10.100.100.1"
-      }
+    user_account {
+      username = var.vm_account_username
+      password = var.vm_account_password
+      keys     = ["${trimspace(var.cluster_public_key)}"]
     }
+    user_data_file_id = proxmox_virtual_environment_file.k3s_cloud_config.id
   }
-  agent {
-    enabled = true
+  network_device {
+    bridge  = "vmbr0"
+    vlan_id = 100
+  }
+  operating_system {
+    type = "l26"
   }
 }
 
@@ -180,7 +161,7 @@ resource "null_resource" "delay" {
     command = "sleep 60"
   }
 
-  depends_on = [proxmox_virtual_environment_vm.rancher_k3s_1, proxmox_virtual_environment_vm.rancher_k3s_2, proxmox_virtual_environment_vm.rancher_k3s_3]
+  depends_on = [proxmox_virtual_environment_vm.rancher_k3s_1, proxmox_virtual_environment_vm.rancher_k3s_2]
 }
 
 # TODO: add dns entries for new hosts
