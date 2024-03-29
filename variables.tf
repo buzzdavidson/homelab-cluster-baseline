@@ -1,3 +1,27 @@
+variable "dns_server_address" {
+  type        = string
+  description = "IP Address of DNS server for updates"
+  default = "10.40.100.150"
+}
+
+variable "dns_key_algorithm" {
+  type        = string
+  description = "Algorithm for DNS key"
+  sensitive   = true
+}
+
+variable "dns_key_name" {
+  type        = string
+  description = "Name of the key for DNS updates"
+  sensitive   = true
+}
+
+variable "dns_key_secret" {
+  type        = string
+  description = "Shared secret for DNS updates"
+  sensitive   = true
+}
+
 variable "proxmox_api_key" {
   type        = string
   sensitive   = true
@@ -50,13 +74,13 @@ variable "vm_account_password" {
 variable "domain_ntp_server" {
   type        = string
   description = "NTP server for domain"
-  default = "10.0.0.1"
+  default     = "10.0.0.1"
 }
 
 variable "domain_fallback_ntp_server" {
   type        = string
   description = "Fallback NTP server for domain"
-  default = "time.cloudflare.com"
+  default     = "time.cloudflare.com"
 }
 
 variable "vlans" {

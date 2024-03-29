@@ -1,5 +1,9 @@
 terraform {
   required_providers {
+    dns = {
+      source  = "hashicorp/dns"
+      version = "3.4.0"
+    }
     proxmox = {
       source  = "bpg/proxmox"
       version = "0.50.0"
@@ -8,7 +12,6 @@ terraform {
       source  = "dariusbakunas/truenas"
       version = "0.11.1"
     }
-
   }
 }
 
@@ -42,5 +45,12 @@ provider "truenas" {
   base_url = var.truenas_api_url
 }
 
-
+provider "dns" {
+  update {
+    server        = var.dns_server_address
+    key_name      = var.dns_key_name
+    key_algorithm = var.dns_key_algorithm
+    key_secret    = var.dns_key_secret
+  }
+}
 

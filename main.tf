@@ -2,9 +2,17 @@ module "core-storage" {
   source = "./core-storage"
 }
 
+module "core-dns-technitium" {
+  source     = "./core-dns-technitium"
+  depends_on = [module.core-storage]
+  providers = {
+    dns = dns
+  }
+}
+
 module "core-proxmox-system" {
   source                     = "./core-proxmox-system"
-  depends_on                 = [module.core-storage]
+  depends_on                 = [module.core-dns-technitium]
   domain_ntp_server          = var.domain_ntp_server
   domain_fallback_ntp_server = var.domain_fallback_ntp_server
 }
