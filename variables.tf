@@ -1,7 +1,7 @@
 variable "dns_server_address" {
   type        = string
   description = "IP Address of DNS server for updates"
-  default = "10.40.100.150"
+  default     = "10.40.100.150"
 }
 
 variable "dns_key_algorithm" {
@@ -43,6 +43,12 @@ variable "proxmox_ssh_username" {
   type        = string
   sensitive   = true
   description = "SSH Username for programmatic access to proxmox"
+}
+
+variable "rancher_k3s_join_token" {
+  type        = string
+  sensitive   = true
+  description = "Join token for Rancher"
 }
 
 variable "truenas_api_key" {

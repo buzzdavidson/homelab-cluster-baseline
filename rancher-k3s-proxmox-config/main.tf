@@ -1,3 +1,9 @@
+#===============================================================================
+# Ansible Playbook to prepare new ubuntu VMs for k3s
+#
+# WARNING: DO NOT change or move any resources created via terraform, it will break terraform!
+#
+#===============================================================================
 
 resource "null_resource" "run_ansible_playbook" {
   provisioner "local-exec" {

@@ -1,5 +1,5 @@
 #===============================================================================
-# Ansible Playbook to standardize proxmox hosts
+# Ansible Playbook to install k3s
 #
 # WARNING: DO NOT change or move any resources created via terraform, it will break terraform!
 #
@@ -13,8 +13,7 @@ resource "null_resource" "run_ansible_playbook" {
       -i inventory.ini \
       -u root \
       playbook.yml \
-      -e "ntp_server=${var.domain_ntp_server}" \
-      -e "fallback_ntp_server=${var.domain_fallback_ntp_server}" \
+      -e "rancher_k3s_join_token=${var.rancher_k3s_join_token}" \
     EOT
   }
 }

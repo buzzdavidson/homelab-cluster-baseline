@@ -1,15 +1,21 @@
-# Fixed DNS entries go here
+#===============================================================================
+# Configuration for core DNS entries
 #
-# SMD: Keep an eye out for Technitium DNS provider for Terraform, we could manage all setup here.
-# SMD: proxmox-1 through -3 MUST be manually set up in technitium PRIOR to running Terraform.
-
-# resource "dns_a_record_set" "proxmox-1" {
-#   zone = "buzzdavidson.com."
-#   name = "proxmox-1"
-#   addresses = [
-#     "10.80.100.21"
-#   ]
-# }
+# Prerequisites:
+#   1. Technitium DNS server is installed and running on TrueNAS
+#   2. Technitium DNS server has blocking configured (not strictly necessary, but a reminder if setting up again)
+#   3. Technitium DNS is set up to use cloudflare DNS-OVER-TLS forwarders
+#   4. Technitium DNS server has buzzdavidson.com zone configured with:
+#      - dynamic updates enabled by IP
+#      - access IPs set up
+#      - TSIG key configured
+#   5. proxmox-1 through -3 MUST be manually set up in technitium PRIOR to running Terraform.
+#   6. A record should be created for Technitium DNS server (ns.buzzdavidson.com)
+#
+# TODO: Keep an eye out for Technitium DNS provider for Terraform to eliminate manual setup
+#      
+#
+#===============================================================================
 
 resource "dns_a_record_set" "truenas-1" {
   zone = "buzzdavidson.com."

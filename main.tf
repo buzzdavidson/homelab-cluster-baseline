@@ -46,3 +46,9 @@ module "rancher-k3s-proxmox-config" {
   domain_ntp_server          = var.domain_ntp_server
   domain_fallback_ntp_server = var.domain_fallback_ntp_server
 }
+
+module "rancher-k3s-install" {
+  source                 = "./rancher-k3s-install"
+  depends_on             = [module.rancher-k3s-proxmox-config]
+  rancher_k3s_join_token = var.rancher_k3s_join_token
+}

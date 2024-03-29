@@ -1,3 +1,10 @@
+#===============================================================================
+# Configuration for Rancher K3s cluster hosts
+#
+# TODO: create HA groups for these hosts
+#
+#===============================================================================
+
 resource "proxmox_virtual_environment_pool" "rancher_pool" {
   comment = "Managed by Terraform"
   pool_id = "rancher-pool"

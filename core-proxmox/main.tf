@@ -1,21 +1,21 @@
-# NOTE: this requires some manual set-up first!
-# 1. Proxmox nodes configured with static IPs (new installation)
-# 3. NFS storage set up in FreeNAS
-# 4. ACME set up in proxmox datacenter
-# 5. ACME certificates configured for every node (proxmox-x.buzzdavidson.com)
-#    Note: can we automate this via api?
-# 6. New API token created for root user
-# 7. New API token granted access to all storage (config in datacenter for each node)
-# 8. Cluster created and all nodes joined
-
-#==================================================================================================
+#===============================================================================
+# Configuration for core DNS entries
+#
+# Prerequisites:
+#   1. Proxmox nodes configured with static IPs (new installation)
+#   3. NFS storage set up in FreeNAS
+#   4. ACME set up in proxmox datacenter
+#   5. ACME certificates configured for every node (proxmox-x.buzzdavidson.com)
+#      - Note: can we automate this via api?
+#   6. Cluster created and all nodes joined
+#
 # TODO ITEMS
 # [ ] - Enable gotify notifications
 #       https://pve.proxmox.com/pve-docs/chapter-notifications.html
 # [ ] - Configure HA groups and rules for core (will need to do the same for rancher) 
 #       https://pve.proxmox.com/pve-docs/chapter-ha-manager.html
 # [ ] - Enable monitoring
-# [ ] - Ensure time synchronization properly configured
+# [x] - Ensure time synchronization properly configured
 #       https://pve.proxmox.com/pve-docs/pve-admin-guide.html
 # [ ] - Configure backups
 # [ ] - Add proxmox management network as second interface
@@ -28,6 +28,7 @@
 # view cluster status: pvecm status
 # add node to cluster: from node to be added: pvecm add ciuster-ip-address
 #==================================================================================================
+
 resource "proxmox_virtual_environment_file" "cloud_config" {
   # To clarify, this functionality uses SSH to connect to the host, as proxmox doesn't allow
   # programmatic access to create snippets.

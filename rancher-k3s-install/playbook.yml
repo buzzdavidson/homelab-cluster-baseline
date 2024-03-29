@@ -1,0 +1,4 @@
+---
+- hosts: rancher_k3s_hosts
+  become: true
+  tasks:

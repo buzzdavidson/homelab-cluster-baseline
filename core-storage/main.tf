@@ -1,3 +1,8 @@
+#===============================================================================
+# The intention of this module is to configure TrueNAS with everything we need
+# HOWEVER the TrueNAS provider is currently broken, so this is disabled for now
+#
+#
 # Note: NFS share creation is currently broken due to API cnahges in TrueNAS 22.12.0
 # errors: "alldirs" attribute not expected, "paths" removed and replaced with "path"
 # https://github.com/dariusbakunas/terraform-provider-truenas/issues/9
@@ -7,6 +12,7 @@
 # 2. An existing ZFS Pool called "flash-pool" with a dataset called "nfs-shares"
 # 3. If SSL is required, need to add the CA certificate to the TrueNAS server
 #    NOTE: ACME certificate support is present, but appears broken in 22.12.3.2
+#===============================================================================
 
 resource "truenas_share_nfs" "proxmox_nfs" {
   # disabled for now
