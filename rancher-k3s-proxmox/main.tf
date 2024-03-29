@@ -165,8 +165,5 @@ resource "null_resource" "delay" {
 }
 
 # TODO: add dns entries for new hosts
-# TODO: migrate host 2 and 3 to proper proxmox nodes
 # TODO: for each host, add a second network interface for the rancher network
-# TODO: for each host, turn on guest agent
-# TODO: delete k3s_host_template after execution
 

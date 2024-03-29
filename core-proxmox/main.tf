@@ -19,7 +19,7 @@
 #       https://pve.proxmox.com/pve-docs/pve-admin-guide.html
 # [ ] - Configure backups
 # [ ] - Add proxmox management network as second interface
-# [ ] - Update local storage to support snippets
+# [ ] - Update nfs-flash storage to support snippets 
 #
 # MISC STUFF
 # set tags for VM: qm set ID --tags myfirsttag;mysecondtag
