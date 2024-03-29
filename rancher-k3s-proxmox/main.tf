@@ -105,8 +105,8 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_1" {
   node_name   = "proxmox-1"
   description = "Managed by Terraform"
   pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
-  reboot      = false # Rebooting is problematic before qemu-guest-agent is installed
-  started     = true  # We want to start the VM so cloud-init can do its thing
+  reboot      = true
+  started     = true
   clone {
     full  = true
     vm_id = proxmox_virtual_environment_vm.k3s_host_template.id
@@ -119,6 +119,9 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_1" {
       }
     }
   }
+  agent {
+    enabled = true
+  }
 }
 
 resource "proxmox_virtual_environment_vm" "rancher_k3s_2" {
@@ -127,8 +130,8 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_2" {
   node_name   = "proxmox-1"
   description = "Managed by Terraform"
   pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
-  reboot      = false # Rebooting is problematic before qemu-guest-agent is installed
-  started     = true  # We want to start the VM so cloud-init can do its thing
+  reboot      = true
+  started     = true
   clone {
     full  = true
     vm_id = proxmox_virtual_environment_vm.k3s_host_template.id
@@ -141,6 +144,9 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_2" {
       }
     }
   }
+  agent {
+    enabled = true
+  }
 }
 
 resource "proxmox_virtual_environment_vm" "rancher_k3s_3" {
@@ -149,8 +155,8 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_3" {
   node_name   = "proxmox-1"
   description = "Managed by Terraform"
   pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
-  reboot      = false # Rebooting is problematic before qemu-guest-agent is installed
-  started     = true  # We want to start the VM so cloud-init can do its thing
+  reboot      = true
+  started     = true
   clone {
     full  = true
     vm_id = proxmox_virtual_environment_vm.k3s_host_template.id
@@ -162,6 +168,9 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_3" {
         gateway = "10.100.100.1"
       }
     }
+  }
+  agent {
+    enabled = true
   }
 }
 

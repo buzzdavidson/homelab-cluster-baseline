@@ -39,6 +39,13 @@ module "rancher-k3s-proxmox" {
   vm_account_username = var.vm_account_username
 }
 
+module "rancher-k3s-proxmox-config" {
+  source                     = "./rancher-k3s-proxmox-config"
+  depends_on                 = [module.rancher-k3s-proxmox]
+  domain_ntp_server          = var.domain_ntp_server
+  domain_fallback_ntp_server = var.domain_fallback_ntp_server
+}
+
 # module "core-dns-proxmox" {
 #   source     = "./core-dns-proxmox"
 #   depends_on = [module.core-proxmox]
