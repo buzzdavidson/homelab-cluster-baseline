@@ -1,4 +1,5 @@
 ---
+# TODO: replace this with a proper loop, just loop over a list of hashes
 - hosts: 10.100.100.11
   become: true
   tasks:

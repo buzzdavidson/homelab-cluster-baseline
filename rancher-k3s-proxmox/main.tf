@@ -48,6 +48,7 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   overwrite    = true
 }
 
+// TODO: remove repetition by using a loop
 resource "proxmox_virtual_environment_vm" "rancher_k3s_1" {
   vm_id       = 12861
   name        = "rancher-k3s-1"
