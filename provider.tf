@@ -12,6 +12,18 @@ terraform {
       source  = "dariusbakunas/truenas"
       version = "0.11.1"
     }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "2.12.1"
+    }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = "1.14.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.27.0"
+    }
   }
 }
 
@@ -52,5 +64,19 @@ provider "dns" {
     key_algorithm = var.dns_key_algorithm
     key_secret    = var.dns_key_secret
   }
+}
+
+provider "helm" {
+  kubernetes {
+    config_path = data.kubeconfig_path
+  }
+}
+
+provider "kubernetes" {
+  config_path = data.kubeconfig_path
+}
+
+provider "kubectl" {
+  config_path = data.kubeconfig_path
 }
 

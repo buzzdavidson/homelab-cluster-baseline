@@ -51,3 +51,14 @@ module "rancher-k3s-install" {
   source     = "./rancher-k3s-install"
   depends_on = [module.rancher-k3s-proxmox-config]
 }
+
+module "rancher-install" {
+  source     = "./rancher-install"
+  depends_on = [module.rancher-k3s-install]
+  providers = {
+    helm       = helm
+    kubernetes = kubernetes
+    kubectl    = kubectl
+  }
+  rancher_bootstrap_password = var.rancher_bootstrap_password
+}

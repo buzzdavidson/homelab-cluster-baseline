@@ -22,6 +22,12 @@ variable "dns_key_secret" {
   sensitive   = true
 }
 
+variable "kubeconfig_path" {
+  type        = string
+  description = "Path to kubeconfig file"
+  default = "~/.kube/config"
+}
+
 variable "proxmox_api_key" {
   type        = string
   sensitive   = true
@@ -43,6 +49,12 @@ variable "proxmox_ssh_username" {
   type        = string
   sensitive   = true
   description = "SSH Username for programmatic access to proxmox"
+}
+
+variable "rancher_bootstrap_password" {
+  type        = string
+  sensitive   = true
+  description = "Bootstrap password for Rancher"
 }
 
 variable "rancher_k3s_join_token" {
