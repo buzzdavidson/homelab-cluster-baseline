@@ -10,10 +10,9 @@ resource "null_resource" "run_ansible_playbook" {
     working_dir = path.module
     command     = <<-EOT
       ansible-playbook \
-      -i inventory.yml \
+      -i inventory/my_cluster/hosts.ini \
       -u root \
-      playbook/site.yml \
-      -e "rancher_k3s_join_token=${var.rancher_k3s_join_token}" \
+      site.yml
     EOT
   }
 }
