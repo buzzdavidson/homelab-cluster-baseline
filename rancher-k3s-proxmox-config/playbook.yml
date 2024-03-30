@@ -1,4 +1,26 @@
 ---
+- hosts: 10.100.100.11
+  become: true
+  tasks:
+    - name: Update Host Name [Base Name]
+      shell: hostnamectl set-hostname k3s-server-01
+    - name: Update Host Name [FQDN]
+      shell: hostnamectl set-hostname k3s-server-01.buzzdavidson.com
+- hosts: 10.100.100.12
+  become: true
+  tasks:
+    - name: Update Host Name [Base Name]
+      shell: hostnamectl set-hostname k3s-server-02
+    - name: Update Host Name [FQDN]
+      shell: hostnamectl set-hostname k3s-server-02.buzzdavidson.com
+- hosts: 10.100.100.13
+  become: true
+  tasks:
+    - name: Update Host Name [Base Name]
+      shell: hostnamectl set-hostname k3s-server-03
+    - name: Update Host Name [FQDN]
+      shell: hostnamectl set-hostname k3s-server-03.buzzdavidson.com
+
 - hosts: rancher_k3s_hosts
   become: true
   tasks:
