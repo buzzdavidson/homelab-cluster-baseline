@@ -10,7 +10,7 @@ resource "null_resource" "run_ansible_playbook" {
     working_dir = path.module
     command     = <<-EOT
       ansible-playbook \
-      -i inventory/my_cluster/hosts.ini \
+      -i inventory/buzzdavidson/hosts.ini \
       -u root \
       site.yml
     EOT

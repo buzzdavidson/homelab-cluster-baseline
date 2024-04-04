@@ -6,7 +6,7 @@ terraform {
     }
     proxmox = {
       source  = "bpg/proxmox"
-      version = "0.50.0"
+      version = "0.51.0"
     }
     truenas = {
       source  = "dariusbakunas/truenas"
@@ -68,15 +68,15 @@ provider "dns" {
 
 provider "helm" {
   kubernetes {
-    config_path = data.kubeconfig_path
+    config_path = var.kubeconfig_path
   }
 }
 
 provider "kubernetes" {
-  config_path = data.kubeconfig_path
+  config_path = var.kubeconfig_path
 }
 
 provider "kubectl" {
-  config_path = data.kubeconfig_path
+  config_path = var.kubeconfig_path
 }
 

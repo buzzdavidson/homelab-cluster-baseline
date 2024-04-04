@@ -8,6 +8,7 @@
 #   5. ACME certificates configured for every node (proxmox-x.buzzdavidson.com)
 #      - Note: can we automate this via api?
 #   6. Cluster created and all nodes joined
+#   7. Default linux bridge configured as vlan aware (todo: automate this)  
 #
 # TODO ITEMS
 # [ ] - Enable gotify notifications

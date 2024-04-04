@@ -56,9 +56,11 @@ module "rancher-install" {
   source     = "./rancher-install"
   depends_on = [module.rancher-k3s-install]
   providers = {
+    dns        = dns
     helm       = helm
     kubernetes = kubernetes
     kubectl    = kubectl
   }
   rancher_bootstrap_password = var.rancher_bootstrap_password
+  kubeconfig_path            = var.kubeconfig_path
 }
