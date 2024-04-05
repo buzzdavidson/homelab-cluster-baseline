@@ -86,6 +86,7 @@ module "rancher-cert-manager-install" {
     buzzdavidson = {
       common_name = "*.buzzdavidson.com"
       dns_names   = ["buzzdavidson.com", "*.buzzdavidson.com"]
+      secret_name = "buzzdavidson-com-tls"
     }
   }
 }

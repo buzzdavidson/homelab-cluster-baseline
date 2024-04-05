@@ -223,7 +223,7 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_3" {
 resource "null_resource" "delay" {
   # This is a hack to allow the VMs to start up and get their IP addresses before we run the Ansible script
   provisioner "local-exec" {
-    command = "sleep 60"
+    command = "sleep 15"
   }
 
   depends_on = [proxmox_virtual_environment_vm.rancher_k3s_1, proxmox_virtual_environment_vm.rancher_k3s_2, proxmox_virtual_environment_vm.rancher_k3s_3]
