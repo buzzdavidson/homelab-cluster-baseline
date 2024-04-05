@@ -67,22 +67,23 @@ EOF
 }
 
 resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_1" {
-  node_name = "proxmox-1"
-  name      = "vmbr0.100"
-
-  comment = "Managed by Terraform"
+  node_name  = "proxmox-1"
+  name       = "vmbr0.100"
+  depends_on = [proxmox_virtual_environment_file.cloud_config]
+  comment    = "Managed by Terraform"
 }
 
 resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_2" {
-  node_name = "proxmox-2"
-  name      = "vmbr0.100"
-
-  comment = "Managed by Terraform"
+  node_name  = "proxmox-2"
+  name       = "vmbr0.100"
+  depends_on = [proxmox_virtual_environment_file.cloud_config]
+  comment    = "Managed by Terraform"
 }
 
 resource "proxmox_virtual_environment_network_linux_vlan" "core_services_vlan_3" {
-  node_name = "proxmox-3"
-  name      = "vmbr0.100"
-
-  comment = "Managed by Terraform"
+  node_name  = "proxmox-3"
+  name       = "vmbr0.100"
+  depends_on = [proxmox_virtual_environment_file.cloud_config]
+  comment    = "Managed by Terraform"
 }
+

@@ -52,11 +52,20 @@ module "rancher-k3s-install" {
   depends_on = [module.rancher-k3s-proxmox-config]
 }
 
+# Delay seems to be required here, cert manager fails with "auth failure" if it runs too soon after the rancher install
+resource "null_resource" "delay" {
+  provisioner "local-exec" {
+    command = "sleep 30"
+  }
+  depends_on = [module.rancher-k3s-install]
+}
+
 module "rancher-cert-manager-install" {
   source               = "terraform-iaac/cert-manager/kubernetes"
   version              = "2.6.3"
   cluster_issuer_email = var.letsencrypt_email
-  depends_on           = [module.rancher-k3s-install]
+  depends_on           = [null_resource.delay]
+
   solvers = [
     {
       dns01 = {
@@ -74,15 +83,15 @@ module "rancher-cert-manager-install" {
     }
   ]
   certificates = {
-    rancher = {
-      common_name = "rancher.buzzdavidson.com"
-      dns_names   = ["rancher.buzzdavidson.com"]
+    buzzdavidson = {
+      common_name = "*.buzzdavidson.com"
+      dns_names   = ["buzzdavidson.com", "*.buzzdavidson.com"]
     }
   }
 }
 
-module "rancher-install" {
-  source     = "./rancher-install"
+module "rancher-traefik-install" {
+  source     = "./rancher-traefik-install"
   depends_on = [module.rancher-cert-manager-install]
   providers = {
     dns        = dns
@@ -90,7 +99,19 @@ module "rancher-install" {
     kubernetes = kubernetes
     kubectl    = kubectl
   }
-  rancher_bootstrap_password = var.rancher_bootstrap_password
-  kubeconfig_path            = var.kubeconfig_path
-  letsencrypt_email          = var.letsencrypt_email
+  traefik_dashboard_credentials = var.traefik_dashboard_credentials
 }
+
+# module "rancher-install" {
+#   source     = "./rancher-install"
+#   depends_on = [module.rancher-traefik-install]
+#   providers = {
+#     dns        = dns
+#     helm       = helm
+#     kubernetes = kubernetes
+#     kubectl    = kubectl
+#   }
+#   rancher_bootstrap_password = var.rancher_bootstrap_password
+#   kubeconfig_path            = var.kubeconfig_path
+#   letsencrypt_email          = var.letsencrypt_email
+# }
