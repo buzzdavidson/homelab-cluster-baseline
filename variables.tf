@@ -1,3 +1,15 @@
+variable "cloudflare_email" {
+  type        = string
+  description = "Email address for Cloudflare"
+  sensitive   = true
+}
+
+variable "cloudflare_api_token" {
+  type        = string
+  description = "API Token for Cloudflare"
+  sensitive   = true
+}
+
 variable "dns_server_address" {
   type        = string
   description = "IP Address of DNS server for updates"
@@ -25,7 +37,13 @@ variable "dns_key_secret" {
 variable "kubeconfig_path" {
   type        = string
   description = "Path to kubeconfig file"
-  default = "~/.kube/config"
+  default     = "~/.kube/config"
+}
+
+variable "letsencrypt_email" {
+  type        = string
+  description = "Email address for Let's Encrypt"
+  sensitive   = true
 }
 
 variable "proxmox_api_key" {

@@ -24,6 +24,7 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "2.27.0"
     }
+
   }
 }
 
@@ -74,6 +75,7 @@ provider "helm" {
 
 provider "kubernetes" {
   config_path = var.kubeconfig_path
+  insecure    = true
 }
 
 provider "kubectl" {

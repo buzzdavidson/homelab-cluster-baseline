@@ -52,9 +52,38 @@ module "rancher-k3s-install" {
   depends_on = [module.rancher-k3s-proxmox-config]
 }
 
+module "rancher-cert-manager-install" {
+  source               = "terraform-iaac/cert-manager/kubernetes"
+  version              = "2.6.3"
+  cluster_issuer_email = var.letsencrypt_email
+  depends_on           = [module.rancher-k3s-install]
+  solvers = [
+    {
+      dns01 = {
+        cloudflare = {
+          email = var.cloudflare_email
+          apiKeySecretRef = {
+            name = "cloudflare-api-key-secret"
+            key  = var.cloudflare_api_token
+          }
+        }
+      },
+      selector = {
+        dns_names = ["buzzdavidson.com"]
+      }
+    }
+  ]
+  certificates = {
+    rancher = {
+      common_name = "rancher.buzzdavidson.com"
+      dns_names   = ["rancher.buzzdavidson.com"]
+    }
+  }
+}
+
 module "rancher-install" {
   source     = "./rancher-install"
-  depends_on = [module.rancher-k3s-install]
+  depends_on = [module.rancher-cert-manager-install]
   providers = {
     dns        = dns
     helm       = helm
@@ -63,4 +92,5 @@ module "rancher-install" {
   }
   rancher_bootstrap_password = var.rancher_bootstrap_password
   kubeconfig_path            = var.kubeconfig_path
+  letsencrypt_email          = var.letsencrypt_email
 }

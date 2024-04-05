@@ -12,4 +12,3 @@ variable "vm_account_password" {
   type        = string
   description = "Password for VMs"
 }
-

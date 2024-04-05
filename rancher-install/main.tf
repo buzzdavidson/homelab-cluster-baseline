@@ -4,35 +4,6 @@
 #
 #===============================================================================
 
-resource "helm_release" "cert-manager" {
-  name             = "cert-manager"
-  repository       = "https://charts.jetstack.io"
-  chart            = "cert-manager"
-  namespace        = "cert-manager"
-  create_namespace = true
-  version          = "v1.14.4"
-  set {
-    name  = "installCRDs"
-    value = true
-  }
-  set {
-    name  = "global.rbac.create"
-    value = true
-  }
-  set {
-    name  = "webhook.enabled"
-    value = true
-  }
-  set {
-    name  = "cainjector.enabled"
-    value = true
-  }
-  set {
-    name  = "webhook.service.type"
-    value = "ClusterIP"
-  }
-}
-// see https://registry.terraform.io/modules/terraform-iaac/cert-manager/kubernetes/latest
 // see helm search repo rancher-stable/rancher --versions
 resource "helm_release" "rancher" {
   name             = "rancher"
@@ -41,17 +12,59 @@ resource "helm_release" "rancher" {
   namespace        = "cattle-system"
   create_namespace = true
   version          = "2.8.3"
-  depends_on       = [helm_release.cert-manager]
   set {
     name  = "hostname"
     value = "rancher.buzzdavidson.com"
   }
   set {
     name  = "replicas"
-    value = 1
+    value = -1
   }
   set {
     name  = "bootstrapPassword"
     value = var.rancher_bootstrap_password
   }
+  set {
+    name  = "ingress.tls.source"
+    value = "letsEncrypt"
+  }
+  set {
+    name  = "letsEncrypt.email"
+    value = var.letsencrypt_email
+  }
 }
+
+# helm chart doesnt seem to like the metallb config here, it leaves the service with a ClusterIP type.
+# Update the service as LoadBalancer, then we can get the IP address and update DNS
+resource "kubernetes_service" "rancher" {
+  metadata {
+    name      = "rancher"
+    namespace = "cattle-system"
+  }
+  spec {
+    selector = {
+      app = "rancher"
+    }
+    port {
+      name        = "https"
+      port        = 443
+      target_port = 443
+    }
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 80
+    }
+    type = "LoadBalancer"
+  }
+  depends_on = [helm_release.rancher]
+}
+
+resource "dns_a_record_set" "rancher" {
+  zone = "buzzdavidson.com."
+  name = "rancher"
+  addresses = [
+    kubernetes_service.rancher.status.0.load_balancer.0.ingress.0.ip
+  ]
+}
+
