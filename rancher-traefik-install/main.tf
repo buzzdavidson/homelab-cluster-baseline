@@ -1,7 +1,7 @@
 #===============================================================================
 # Install Traefik for rancher cluster
 #
-#
+# issue: "Error configuring TLS: secret traefik/buzzdavidson-com-tls does not exist"
 #===============================================================================
 
 resource "kubernetes_namespace" "traefik" {

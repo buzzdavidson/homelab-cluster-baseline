@@ -2,14 +2,14 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: local-buzzdavidson-com
+  name: buzzdavidson-com
   namespace: default
 spec:
-  secretName: local-buzzdavidson-com-tls
+  secretName: buzzdavidson-com-tls
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
   commonName: "*.buzzdavidson.com"
   dnsNames:
-  - "buzzdavidson.com"
-  - "*.buzzdavidson.com"
+    - "buzzdavidson.com"
+    - "*.buzzdavidson.com"
