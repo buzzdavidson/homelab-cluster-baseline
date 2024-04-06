@@ -52,9 +52,19 @@ module "rancher-k3s-install" {
   depends_on = [module.rancher-k3s-proxmox-config]
 }
 
+module "rancher-emberstack-reflector-install" {
+  source     = "./rancher-emberstack-reflector-install"
+  depends_on = [module.rancher-k3s-install]
+  providers = {
+    helm       = helm
+    kubernetes = kubernetes
+    kubectl    = kubectl
+  }
+}
+
 module "rancher-cert-mgr-install" {
   source     = "./rancher-cert-mgr-install"
-  depends_on = [module.rancher-k3s-install]
+  depends_on = [module.rancher-emberstack-reflector-install]
   providers = {
     dns        = dns
     helm       = helm
@@ -77,16 +87,16 @@ module "rancher-traefik-install" {
   traefik_dashboard_credentials = var.traefik_dashboard_credentials
 }
 
-module "rancher-install" {
-  source     = "./rancher-install"
-  depends_on = [module.rancher-traefik-install]
-  providers = {
-    dns        = dns
-    helm       = helm
-    kubernetes = kubernetes
-    kubectl    = kubectl
-  }
-  rancher_bootstrap_password = var.rancher_bootstrap_password
-  kubeconfig_path            = var.kubeconfig_path
-  letsencrypt_email          = var.letsencrypt_email
-}
+# module "rancher-install" {
+#   source     = "./rancher-install"
+#   depends_on = [module.rancher-traefik-install]
+#   providers = {
+#     dns        = dns
+#     helm       = helm
+#     kubernetes = kubernetes
+#     kubectl    = kubectl
+#   }
+#   rancher_bootstrap_password = var.rancher_bootstrap_password
+#   kubeconfig_path            = var.kubeconfig_path
+#   letsencrypt_email          = var.letsencrypt_email
+# }
