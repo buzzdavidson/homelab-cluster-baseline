@@ -33,36 +33,3 @@ resource "helm_release" "rancher" {
     value = var.letsencrypt_email
   }
 }
-
-# we need to delay here to avoid "error/unauthorized" error
-resource "null_resource" "delay" {
-  depends_on = [helm_release.rancher]
-  provisioner "local-exec" {
-    command = "sleep 5"
-  }
-}
-
-# helm chart doesnt seem to like the metallb config here, it leaves the service with a ClusterIP type.
-# Update the service as LoadBalancer, then we can get the IP address and update DNS
-resource "kubectl_manifest" "rancher_reconfigure" {
-  depends_on = [null_resource.delay]
-  yaml_body  = <<EOF
-apiVersion: v1
-kind: Service
-metadata:
-  name: rancher
-  namespace: cattle-system
-spec:
-  type: LoadBalancer
-  ports:
-  - name: http
-    port: 80
-    targetPort: 80
-  - name: https
-    port: 443
-    targetPort: 443
-  selector:
-    app: rancher
-EOF
-}
-
