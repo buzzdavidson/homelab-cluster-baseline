@@ -52,56 +52,69 @@ module "rancher-k3s-install" {
   depends_on = [module.rancher-k3s-proxmox-config]
 }
 
-# Delay seems to be required here, cert manager fails with "auth failure" if it runs too soon after the rancher install
-resource "null_resource" "delay" {
-  provisioner "local-exec" {
-    command = "sleep 30"
-  }
+module "rancher-cert-mgr-install" {
+  source     = "./rancher-cert-mgr-install"
   depends_on = [module.rancher-k3s-install]
-}
-
-module "rancher-cert-manager-install" {
-  source               = "terraform-iaac/cert-manager/kubernetes"
-  version              = "2.6.3"
-  cluster_issuer_email = var.letsencrypt_email
-  depends_on           = [null_resource.delay]
-
-  solvers = [
-    {
-      dns01 = {
-        cloudflare = {
-          email = var.cloudflare_email
-          apiKeySecretRef = {
-            name = "cloudflare-api-key-secret"
-            key  = var.cloudflare_api_token
-          }
-        }
-      },
-      selector = {
-        dns_names = ["buzzdavidson.com"]
-      }
-    }
-  ]
-  certificates = {
-    buzzdavidson = {
-      common_name = "*.buzzdavidson.com"
-      dns_names   = ["buzzdavidson.com", "*.buzzdavidson.com"]
-      secret_name = "buzzdavidson-com-tls"
-    }
-  }
-}
-
-module "rancher-traefik-install" {
-  source     = "./rancher-traefik-install"
-  depends_on = [module.rancher-cert-manager-install]
   providers = {
     dns        = dns
     helm       = helm
     kubernetes = kubernetes
     kubectl    = kubectl
   }
-  traefik_dashboard_credentials = var.traefik_dashboard_credentials
+  letsencrypt_email    = var.letsencrypt_email
+  cloudflare_api_token = var.cloudflare_api_token
 }
+
+# module "rancher-cert-manager-install" {
+#   source                                 = "terraform-iaac/cert-manager/kubernetes"
+#   version                                = "2.6.3"
+#   cluster_issuer_email                   = var.letsencrypt_email
+#   cluster_issuer_name                    = "letsencrypt-prod"
+#   cluster_issuer_private_key_secret_name = "letsencrypt-prod-private-key"
+#   create_namespace                       = false
+#   depends_on                             = [kubernetes_secret.cloudflare-token-secret]
+#   solvers = [
+#     {
+#       dns01 = {
+#         cloudflare = {
+#           email = var.cloudflare_email
+#           zone  = var.cloudflare_zone_id
+#           apiTokenSecretRef = {
+#             name = "cloudflare-token-secret"
+#             key  = "cloudflare_token"
+#           }
+#           recursiveNameservers = [
+#             "jobs.ns.cloudflare.com:53",
+#             "maxine.ns.cloudflare.com:53"
+#           ]
+#           recursiveNameserversOnly = true
+#         }
+#       },
+#       selector = {
+#         dnsNames = ["buzzdavidson.com", "*.buzzdavidson.com"]
+#       }
+#     }
+#   ]
+#   certificates = {
+#     buzzdavidson-com = {
+#       common_name = "*.buzzdavidson.com"
+#       dns_names   = ["buzzdavidson.com", "*.buzzdavidson.com"]
+#       secret_name = "buzzdavidson-com-tls"
+#     }
+#   }
+# }
+
+# module "rancher-traefik-install" {
+#   source     = "./rancher-traefik-install"
+#   depends_on = [module.rancher-cert-manager-install]
+#   providers = {
+#     dns        = dns
+#     helm       = helm
+#     kubernetes = kubernetes
+#     kubectl    = kubectl
+#   }
+#   traefik_dashboard_credentials = var.traefik_dashboard_credentials
+# }
 
 # module "rancher-install" {
 #   source     = "./rancher-install"

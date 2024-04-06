@@ -162,3 +162,9 @@ variable "traefik_dashboard_credentials" {
   sensitive   = true
   description = "Password for Traefik dashboard"
 }
+
+variable "cloudflare_zone_id" {
+  type        = string
+  description = "Zone ID for Cloudflare"
+  sensitive   = true
+}
