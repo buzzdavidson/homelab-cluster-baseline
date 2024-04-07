@@ -39,6 +39,7 @@ module "rancher-k3s-proxmox" {
   cluster_public_key  = var.cluster_public_key
   vm_account_password = var.vm_account_password
   vm_account_username = var.vm_account_username
+  rancher_k3s_servers = var.rancher_k3s_servers
 }
 
 module "rancher-k3s-proxmox-config" {

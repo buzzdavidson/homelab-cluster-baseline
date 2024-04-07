@@ -130,3 +130,13 @@ variable "cloudflare_zone_id" {
   description = "Zone ID for Cloudflare"
   sensitive   = true
 }
+
+variable "rancher_k3s_servers" {
+  type = map(string)
+  default = {
+    rancher-k3s-1 = "10.10.100.11",
+    rancher-k3s-2 = "10.10.100.12",
+    rancher-k3s-3 = "10.10.100.13",
+  }
+}
+
