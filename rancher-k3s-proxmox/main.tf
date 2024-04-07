@@ -48,11 +48,11 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   overwrite    = true
 }
 
-// TODO: remove repetition by using a loop
-resource "proxmox_virtual_environment_vm" "rancher_k3s_1" {
-  vm_id       = 12861
-  name        = "rancher-k3s-1"
-  node_name   = "proxmox-1"
+resource "proxmox_virtual_environment_vm" "rancher_k3s_hosts" {
+  for_each    = var.rancher_k3s_servers
+  vm_id       = 12861 + count.index
+  name        = each.key
+  node_name   = "proxmox-${substr(each.key, -1, 1)}"
   description = "Managed by Terraform"
   tags        = ["terraform", "ubuntu", "rancher"]
   pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
@@ -86,7 +86,7 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_1" {
     datastore_id = "nfs-flash"
     ip_config {
       ipv4 {
-        address = "10.100.100.11/24"
+        address = "${each.value}/24"
         gateway = "10.100.100.1"
       }
     }
@@ -97,120 +97,7 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_1" {
     }
     user_data_file_id = proxmox_virtual_environment_file.k3s_cloud_config.id
   }
-  network_device {
-    bridge  = "vmbr0"
-    vlan_id = 100
-  }
-  operating_system {
-    type = "l26"
-  }
-}
 
-resource "proxmox_virtual_environment_vm" "rancher_k3s_2" {
-  vm_id       = 12862
-  name        = "rancher-k3s-2"
-  node_name   = "proxmox-2"
-  description = "Managed by Terraform"
-  tags        = ["terraform", "ubuntu", "rancher"]
-  pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
-  reboot      = true
-  started     = true
-  agent {
-    enabled = true
-  }
-  cpu {
-    cores   = 4
-    sockets = 1
-    type    = "x86-64-v2-AES"
-  }
-  memory {
-    dedicated = 4096
-  }
-  startup {
-    order      = "1"
-    up_delay   = "0"
-    down_delay = "0"
-  }
-  disk {
-    datastore_id = "nfs-flash"
-    file_id      = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
-    interface    = "virtio0"
-    iothread     = true
-    discard      = "on"
-    size         = 10
-  }
-  initialization {
-    datastore_id = "nfs-flash"
-    ip_config {
-      ipv4 {
-        address = "10.100.100.12/24"
-        gateway = "10.100.100.1"
-      }
-    }
-    user_account {
-      username = var.vm_account_username
-      password = var.vm_account_password
-      keys     = ["${trimspace(var.cluster_public_key)}"]
-    }
-    user_data_file_id = proxmox_virtual_environment_file.k3s_cloud_config.id
-  }
-  network_device {
-    bridge  = "vmbr0"
-    vlan_id = 100
-  }
-  operating_system {
-    type = "l26"
-  }
-}
-
-resource "proxmox_virtual_environment_vm" "rancher_k3s_3" {
-  vm_id       = 12863
-  name        = "rancher-k3s-3"
-  node_name   = "proxmox-3"
-  description = "Managed by Terraform"
-  tags        = ["terraform", "ubuntu", "rancher"]
-  pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
-  reboot      = true
-  started     = true
-  agent {
-    enabled = true
-  }
-  cpu {
-    cores   = 4
-    sockets = 1
-    type    = "x86-64-v2-AES"
-  }
-  memory {
-    dedicated = 4096
-  }
-  startup {
-    order      = "1"
-    up_delay   = "0"
-    down_delay = "0"
-  }
-  disk {
-    datastore_id = "nfs-flash"
-    file_id      = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
-    interface    = "virtio0"
-    iothread     = true
-    discard      = "on"
-    size         = 10
-  }
-  initialization {
-    datastore_id = "nfs-flash"
-    ip_config {
-      ipv4 {
-        address = "10.100.100.13/24"
-        gateway = "10.100.100.1"
-      }
-    }
-    user_account {
-      username = var.vm_account_username
-      password = var.vm_account_password
-      keys     = ["${trimspace(var.cluster_public_key)}"]
-    }
-    user_data_file_id = proxmox_virtual_environment_file.k3s_cloud_config.id
-  }
   network_device {
     bridge  = "vmbr0"
     vlan_id = 100
@@ -229,26 +116,11 @@ resource "null_resource" "delay" {
   depends_on = [proxmox_virtual_environment_vm.rancher_k3s_1, proxmox_virtual_environment_vm.rancher_k3s_2, proxmox_virtual_environment_vm.rancher_k3s_3]
 }
 
-resource "dns_a_record_set" "rancher_k3s_1" {
-  zone = "buzzdavidson.com."
-  name = "rancher-k3s-1"
+resource "dns_a_record_set" "proxmox-dns" {
+  for_each = var.rancher_k3s_servers
+  zone     = "buzzdavidson.com."
+  name     = each.key
   addresses = [
-    "10.100.100.11"
-  ]
-}
-
-resource "dns_a_record_set" "rancher_k3s_2" {
-  zone = "buzzdavidson.com."
-  name = "rancher-k3s-2"
-  addresses = [
-    "10.100.100.12"
-  ]
-}
-
-resource "dns_a_record_set" "rancher_k3s_3" {
-  zone = "buzzdavidson.com."
-  name = "rancher-k3s-3"
-  addresses = [
-    "10.100.100.13"
+    each.value
   ]
 }
