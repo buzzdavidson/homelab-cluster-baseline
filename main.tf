@@ -22,10 +22,13 @@ module "core-proxmox" {
   depends_on = [module.core-proxmox-system]
   providers = {
     proxmox = proxmox.bpg
+    dns     = dns
   }
   cluster_public_key  = var.cluster_public_key
   vm_account_password = var.vm_account_password
   vm_account_username = var.vm_account_username
+  proxmox_servers     = var.proxmox_servers
+  proxmox_vlans       = var.proxmox_vlans
 }
 
 module "rancher-k3s-proxmox" {

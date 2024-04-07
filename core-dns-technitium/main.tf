@@ -17,6 +17,7 @@
 #
 #===============================================================================
 
+# NOTE: This is needed early on but we can't run it until we have DNS available
 resource "dns_a_record_set" "truenas-1" {
   zone = "buzzdavidson.com."
   name = "truenas-1"

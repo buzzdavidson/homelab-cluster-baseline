@@ -3,5 +3,8 @@ terraform {
     proxmox = {
       source = "bpg/proxmox"
     }
+    dns = {
+      source = "hashicorp/dns"
+    }
   }
 }

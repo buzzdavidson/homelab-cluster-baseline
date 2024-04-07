@@ -12,3 +12,11 @@ variable "vm_account_password" {
   type        = string
   description = "Password for VMs"
 }
+
+variable "proxmox_servers" {
+  type = map(string)
+}
+
+variable "proxmox_vlans" {
+  type = map(number)
+}

@@ -13,6 +13,7 @@
 # 3. If SSL is required, need to add the CA certificate to the TrueNAS server
 #    NOTE: ACME certificate support is present, but appears broken in 22.12.3.2
 #===============================================================================
+# NOTE core-storage runs before we have DNS available, can't register dns here
 
 resource "truenas_share_nfs" "proxmox_nfs" {
   # disabled for now

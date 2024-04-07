@@ -119,42 +119,25 @@ variable "domain_fallback_ntp_server" {
   default     = "time.cloudflare.com"
 }
 
-variable "vlans" {
-  type = list(object({
-    vlan_id   = number
-    vlan_name = string
-  }))
-  default = [
-    {
-      vlan_id   = 10
-      vlan_name = "home"
-    },
-    {
-      vlan_id   = 22
-      vlan_name = "lab"
-    },
-    {
-      vlan_id   = 40
-      vlan_name = "storage"
-    },
-    {
-      vlan_id   = 66
-      vlan_name = "management"
-    },
-    {
-      vlan_id   = 72
-      vlan_name = "ipmi"
-    },
-    {
-      vlan_id   = 80
-      vlan_name = "proxmox_host"
-    },
-    {
-      vlan_id   = 99
-      vlan_name = "gizmo"
-    },
+variable "proxmox_servers" {
+  type = map(string)
+  default = {
+    proxmox-1 = "10.80.100.21",
+    proxmox-2 = "10.80.100.22",
+    proxmox-3 = "10.80.100.23",
+    proxmox-4 = "10.80.100.24",
+    proxmox-5 = "10.80.100.25",
+    proxmox-6 = "10.80.100.26",
+  }
+}
 
-  ]
+variable "proxmox_vlans" {
+  type = map(number)
+  default = {
+    core_services_vlan     = 100,
+    harvester_vlan         = 140,
+    buzzdavidson_home_vlan = 160
+  }
 }
 
 variable "traefik_dashboard_credentials" {
