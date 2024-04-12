@@ -15,6 +15,13 @@ variable "proxmox_virtual_machines" {
   }))
 }
 
+variable "cluster_private_key" {
+  type        = string
+  description = "Private key for SSH access to VMs"
+  sensitive   = true
+}
+
+
 variable "cluster_public_key" {
   type        = string
   description = "Public key for cluster access"

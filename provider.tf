@@ -8,6 +8,10 @@ terraform {
       source  = "bpg/proxmox"
       version = "0.51.0"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "3.2.2"
+    }
   }
 }
 

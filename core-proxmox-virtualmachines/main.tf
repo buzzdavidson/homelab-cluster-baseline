@@ -15,6 +15,7 @@ preserve_hostname: false
 users:
   - default
   - name: ubuntu
+    passwd: ${var.vm_account_password}
     groups:
       - sudo
     shell: /bin/bash
@@ -39,8 +40,11 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   content_type = "iso"
   datastore_id = "nfs-flash"
   node_name    = "proxmox-1"
-  url          = "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img"
-  overwrite    = false
+  url          = "https://cloud-images.ubuntu.com/jammy/20240403/jammy-server-cloudimg-amd64-disk-kvm.img"
+  overwrite    = true
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 }
 
 resource "proxmox_virtual_environment_vm" "rancher_k3s_hosts" {
@@ -110,4 +114,53 @@ resource "dns_a_record_set" "proxmox-dns" {
   addresses = [
     each.value.ip_address
   ]
+}
+
+# k3s install doesn't like it when the hostname is not set properly; make sure each VM has the correct hostname
+resource "null_resource" "update_hostnames" {
+  depends_on = [dns_a_record_set.proxmox-dns]
+  for_each   = var.proxmox_virtual_machines
+  triggers = {
+    fqdn = each.value.fqdn
+  }
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      host        = each.value.ip_address
+      user        = var.vm_account_username
+      password    = var.vm_account_password
+      agent       = false
+      private_key = file("~/.ssh/id_cluster_rsa")
+    }
+    inline = [
+      "sudo hostnamectl set-hostname ${each.value.fqdn}",
+      "sudo hostname -F /etc/hostname",
+      "sudo systemctl restart systemd-hostnamed",
+    ]
+  }
+}
+
+# Prepare the VMs for docker installation
+resource "null_resource" "prepare_for_docker" {
+  depends_on = [null_resource.update_hostnames]
+  for_each   = var.proxmox_virtual_machines
+  triggers = {
+    fqdn = each.value.fqdn
+  }
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      host        = each.value.ip_address
+      user        = var.vm_account_username
+      password    = var.vm_account_password
+      agent       = false
+      private_key = file("~/.ssh/id_cluster_rsa")
+    }
+    inline = [
+      "sudo ufw disable",
+      "sudo swapoff -a",
+      "sudo sed -i '/ swap / s/^/#/' /etc/fstab",
+    ]
+  }
+
 }

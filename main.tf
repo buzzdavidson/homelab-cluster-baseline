@@ -1,5 +1,5 @@
 module "core-dns-technitium" {
-  source     = "./core-dns-technitium"
+  source = "./core-dns-technitium"
   providers = {
     dns = dns
   }
@@ -30,8 +30,10 @@ module "core-proxmox-virtualmachines" {
   providers = {
     proxmox = proxmox.bpg
     dns     = dns
+    null    = null
   }
   cluster_public_key       = var.cluster_public_key
+  cluster_private_key      = var.cluster_private_key
   vm_account_password      = var.vm_account_password
   vm_account_username      = var.vm_account_username
   proxmox_virtual_machines = var.proxmox_virtual_machines

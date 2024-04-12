@@ -6,5 +6,8 @@ terraform {
     dns = {
       source = "hashicorp/dns"
     }
+    null = {
+      source = "hashicorp/null"
+    }
   }
 }
