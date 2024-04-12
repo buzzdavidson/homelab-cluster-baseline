@@ -50,7 +50,6 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
 
 resource "proxmox_virtual_environment_vm" "rancher_k3s_hosts" {
   for_each    = var.rancher_k3s_servers
-  vm_id       = 12861 + count.index
   name        = each.key
   node_name   = "proxmox-${substr(each.key, -1, 1)}"
   description = "Managed by Terraform"
@@ -113,7 +112,7 @@ resource "null_resource" "delay" {
     command = "sleep 15"
   }
 
-  depends_on = [proxmox_virtual_environment_vm.rancher_k3s_1, proxmox_virtual_environment_vm.rancher_k3s_2, proxmox_virtual_environment_vm.rancher_k3s_3]
+  depends_on = [proxmox_virtual_environment_vm.rancher_k3s_hosts]
 }
 
 resource "dns_a_record_set" "proxmox-dns" {
