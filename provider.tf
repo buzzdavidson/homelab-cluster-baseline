@@ -8,23 +8,6 @@ terraform {
       source  = "bpg/proxmox"
       version = "0.51.0"
     }
-    truenas = {
-      source  = "dariusbakunas/truenas"
-      version = "0.11.1"
-    }
-    helm = {
-      source  = "hashicorp/helm"
-      version = "2.12.1"
-    }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = "1.14.0"
-    }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "2.27.0"
-    }
-
   }
 }
 
@@ -49,13 +32,22 @@ provider "proxmox" {
       name    = "proxmox-3"
       address = "10.80.100.23"
     }
+    node {
+      name    = "proxmox-4"
+      address = "10.80.100.24"
+    }
+    node {
+      name    = "proxmox-5"
+      address = "10.80.100.25"
+    }
+    node {
+      name    = "proxmox-6"
+      address = "10.80.100.26"
+    }
+
+
 
   }
-}
-
-provider "truenas" {
-  api_key  = var.truenas_api_key
-  base_url = var.truenas_api_url
 }
 
 provider "dns" {
@@ -66,19 +58,3 @@ provider "dns" {
     key_secret    = var.dns_key_secret
   }
 }
-
-provider "helm" {
-  kubernetes {
-    config_path = var.kubeconfig_path
-  }
-}
-
-provider "kubernetes" {
-  config_path = var.kubeconfig_path
-  insecure    = true
-}
-
-provider "kubectl" {
-  config_path = var.kubeconfig_path
-}
-

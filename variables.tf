@@ -1,19 +1,6 @@
-variable "cloudflare_email" {
+variable "cluster_public_key" {
   type        = string
-  description = "Email address for Cloudflare"
-  sensitive   = true
-}
-
-variable "cloudflare_api_token" {
-  type        = string
-  description = "API Token for Cloudflare"
-  sensitive   = true
-}
-
-variable "dns_server_address" {
-  type        = string
-  description = "IP Address of DNS server for updates"
-  default     = "10.40.100.150"
+  description = "Public key for cluster access"
 }
 
 variable "dns_key_algorithm" {
@@ -34,16 +21,10 @@ variable "dns_key_secret" {
   sensitive   = true
 }
 
-variable "kubeconfig_path" {
+variable "dns_server_address" {
   type        = string
-  description = "Path to kubeconfig file"
-  default     = "~/.kube/config"
-}
-
-variable "letsencrypt_email" {
-  type        = string
-  description = "Email address for Let's Encrypt"
-  sensitive   = true
+  description = "IP Address of DNS server for updates"
+  default     = "10.40.100.150"
 }
 
 variable "proxmox_api_key" {
@@ -69,18 +50,6 @@ variable "proxmox_ssh_username" {
   description = "SSH Username for programmatic access to proxmox"
 }
 
-variable "rancher_bootstrap_password" {
-  type        = string
-  sensitive   = true
-  description = "Bootstrap password for Rancher"
-}
-
-variable "rancher_k3s_join_token" {
-  type        = string
-  sensitive   = false
-  description = "Join token for Rancher"
-}
-
 variable "truenas_api_key" {
   type        = string
   sensitive   = true
@@ -90,11 +59,6 @@ variable "truenas_api_key" {
 variable "truenas_api_url" {
   type        = string
   description = "Base URL for TrueNAS API"
-}
-
-variable "cluster_public_key" {
-  type        = string
-  description = "Public key for cluster access"
 }
 
 variable "vm_account_username" {
@@ -119,24 +83,121 @@ variable "domain_fallback_ntp_server" {
   default     = "time.cloudflare.com"
 }
 
-variable "traefik_dashboard_credentials" {
-  type        = string
-  sensitive   = true
-  description = "Password for Traefik dashboard"
-}
-
-variable "cloudflare_zone_id" {
-  type        = string
-  description = "Zone ID for Cloudflare"
-  sensitive   = true
-}
-
-variable "rancher_k3s_servers" {
-  type = map(string)
+variable "proxmox_virtual_machines" {
+  type = map(object({
+    fqdn            = string
+    tags            = list(string)
+    cpu_cores       = number
+    memory          = number
+    datastore_id    = string
+    ip_address      = string
+    gateway_address = string
+    proxmox_node    = string
+    vlan_id         = number
+    disk_size_gb    = number
+    disk_interface  = string
+    network_bridge  = string
+  }))
   default = {
-    rancher-k3s-1 = "10.100.100.11",
-    rancher-k3s-2 = "10.100.100.12",
-    rancher-k3s-3 = "10.100.100.13",
+    "home-portainer-1" = {
+      cpu_cores       = 4
+      datastore_id    = "local-lvm"
+      disk_interface  = "virtio0"
+      disk_size_gb    = 30
+      fqdn            = "home-portainer-1.buzzdavidson.com"
+      gateway_address = "10.160.100.1"
+      ip_address      = "10.160.100.69"
+      memory          = 8192
+      network_bridge  = "vmbr0"
+      proxmox_node    = "proxmox-4"
+      tags            = ["terraform", "ubuntu", "portainer", "home"]
+      vlan_id         = 160
+    },
+    # "home-k3s-1" = {
+    #   cpu_cores       = 4
+    #   datastore_id    = "local-lvm"
+    #   disk_interface  = "virtio0"
+    #   disk_size_gb    = 10
+    #   fqdn            = "home-k3s-1.buzzdavidson.com"
+    #   gateway_address = "10.160.100.1"
+    #   ip_address      = "10.160.100.21"
+    #   memory          = 8192
+    #   network_bridge  = "vmbr0"
+    #   proxmox_node    = "proxmox-4"
+    #   tags            = ["terraform", "ubuntu", "k3s", "home"]
+    #   vlan_id         = 160
+    # },
+    # "home-k3s-2" = {
+    #   cpu_cores       = 4
+    #   datastore_id    = "local-lvm"
+    #   disk_interface  = "virtio0"
+    #   disk_size_gb    = 10
+    #   fqdn            = "home-k3s-2.buzzdavidson.com"
+    #   gateway_address = "10.160.100.1"
+    #   ip_address      = "10.160.100.22"
+    #   memory          = 8192
+    #   network_bridge  = "vmbr0"
+    #   proxmox_node    = "proxmox-5"
+    #   tags            = ["terraform", "ubuntu", "k3s", "home"]
+    #   vlan_id         = 160
+    # },
+    # "home-k3s-3" = {
+    #   cpu_cores       = 4
+    #   datastore_id    = "local-lvm"
+    #   disk_interface  = "virtio0"
+    #   disk_size_gb    = 10
+    #   fqdn            = "home-k3s-3.buzzdavidson.com"
+    #   gateway_address = "10.160.100.1"
+    #   ip_address      = "10.160.100.23"
+    #   memory          = 8192
+    #   network_bridge  = "vmbr0"
+    #   proxmox_node    = "proxmox-6"
+    #   tags            = ["terraform", "ubuntu", "k3s", "home"]
+    #   vlan_id         = 160
+    # },
+    # "rancher-k3s-1" = {
+    #   cpu_cores       = 2
+    #   datastore_id    = "local-lvm"
+    #   disk_interface  = "virtio0"
+    #   disk_size_gb    = 10
+    #   fqdn            = "rancher-k3s-1.buzzdavidson.com"
+    #   gateway_address = "10.100.100.1"
+    #   ip_address      = "10.100.100.21"
+    #   memory          = 8192
+    #   network_bridge  = "vmbr0"
+    #   proxmox_node    = "proxmox-1"
+    #   proxmox_node    = "proxmox-1"
+    #   tags            = ["terraform", "ubuntu", "k3s", "rancher"]
+    #   vlan_id         = 100
+    # },
+    # "rancher-k3s-2" = {
+    #   cpu_cores       = 2
+    #   datastore_id    = "local-lvm"
+    #   disk_interface  = "virtio0"
+    #   disk_size_gb    = 10
+    #   fqdn            = "rancher-k3s-2.buzzdavidson.com"
+    #   gateway_address = "10.100.100.1"
+    #   ip_address      = "10.100.100.22"
+    #   memory          = 8192
+    #   network_bridge  = "vmbr0"
+    #   proxmox_node    = "proxmox-2"
+    #   tags            = ["terraform", "ubuntu", "k3s", "rancher"]
+    #   vlan_id         = 100
+    # },
+    # "rancher-k3s-3" = {
+    #   cpu_cores       = 2
+    #   datastore_id    = "local-lvm"
+    #   disk_interface  = "virtio0"
+    #   disk_size_gb    = 10
+    #   fqdn            = "rancher-k3s-3.buzzdavidson.com"
+    #   gateway_address = "10.100.100.1"
+    #   ip_address      = "10.100.100.23"
+    #   memory          = 8192
+    #   network_bridge  = "vmbr0"
+    #   proxmox_node    = "proxmox-3"
+    #   tags            = ["terraform", "ubuntu", "k3s", "rancher"]
+    #   vlan_id         = 100
+    # },
+
   }
 }
-

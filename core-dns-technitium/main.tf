@@ -20,7 +20,7 @@
 # NOTE: This is needed early on but we can't run it until we have DNS available
 resource "dns_a_record_set" "truenas-1" {
   zone = "buzzdavidson.com."
-  name = "truenas-1"
+  name = "truenas"
   addresses = [
     "10.40.100.150"
   ]

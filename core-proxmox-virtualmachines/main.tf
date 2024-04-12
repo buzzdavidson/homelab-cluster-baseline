@@ -1,14 +1,7 @@
 #===============================================================================
-# Configuration for Rancher K3s cluster hosts
-#
-# TODO: create HA groups for these hosts
+# Configuration for core virtual machines
 #
 #===============================================================================
-
-resource "proxmox_virtual_environment_pool" "rancher_pool" {
-  comment = "Managed by Terraform"
-  pool_id = "rancher-pool"
-}
 
 resource "proxmox_virtual_environment_file" "k3s_cloud_config" {
   content_type = "snippets"
@@ -18,6 +11,7 @@ resource "proxmox_virtual_environment_file" "k3s_cloud_config" {
   source_raw {
     data = <<EOF
 #cloud-config
+preserve_hostname: false
 users:
   - default
   - name: ubuntu
@@ -41,52 +35,54 @@ runcmd:
 }
 
 resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
+  depends_on   = [proxmox_virtual_environment_file.k3s_cloud_config]
   content_type = "iso"
   datastore_id = "nfs-flash"
   node_name    = "proxmox-1"
   url          = "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img"
-  overwrite    = true
+  overwrite    = false
 }
 
 resource "proxmox_virtual_environment_vm" "rancher_k3s_hosts" {
-  for_each    = var.rancher_k3s_servers
-  name        = each.key
-  node_name   = "proxmox-${substr(each.key, -1, 1)}"
+  depends_on  = [proxmox_virtual_environment_download_file.ubuntu_cloud_image]
+  for_each    = var.proxmox_virtual_machines
+  name        = each.value.fqdn
+  node_name   = each.value.proxmox_node
   description = "Managed by Terraform"
-  tags        = ["terraform", "ubuntu", "rancher"]
-  pool_id     = proxmox_virtual_environment_pool.rancher_pool.id
+  tags        = each.value.tags
   reboot      = true
   started     = true
   agent {
     enabled = true
   }
   cpu {
-    cores   = 4
+    cores   = each.value.cpu_cores
     sockets = 1
     type    = "x86-64-v2-AES"
   }
   memory {
-    dedicated = 4096
+    dedicated = each.value.memory
   }
-  startup {
-    order      = "1"
-    up_delay   = "0"
-    down_delay = "0"
-  }
+  # startup {
+  #   order      = "1"
+  #   up_delay   = "0"
+  #   down_delay = "0"
+  # }
   disk {
-    datastore_id = "nfs-flash"
+    datastore_id = each.value.datastore_id
     file_id      = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
-    interface    = "virtio0"
+    interface    = each.value.disk_interface
     iothread     = true
     discard      = "on"
-    size         = 10
+    size         = each.value.disk_size_gb
   }
   initialization {
-    datastore_id = "nfs-flash"
+    # This is the datastore for the cloud-init drive
+    datastore_id = each.value.datastore_id
     ip_config {
       ipv4 {
-        address = "${each.value}/24"
-        gateway = "10.100.100.1"
+        address = "${each.value.ip_address}/24"
+        gateway = each.value.gateway_address
       }
     }
     user_account {
@@ -98,28 +94,20 @@ resource "proxmox_virtual_environment_vm" "rancher_k3s_hosts" {
   }
 
   network_device {
-    bridge  = "vmbr0"
-    vlan_id = 100
+    bridge  = each.value.network_bridge
+    vlan_id = each.value.vlan_id
   }
   operating_system {
     type = "l26"
   }
 }
 
-resource "null_resource" "delay" {
-  # This is a hack to allow the VMs to start up and get their IP addresses before we run the Ansible script
-  provisioner "local-exec" {
-    command = "sleep 15"
-  }
-
-  depends_on = [proxmox_virtual_environment_vm.rancher_k3s_hosts]
-}
-
 resource "dns_a_record_set" "proxmox-dns" {
-  for_each = var.rancher_k3s_servers
-  zone     = "buzzdavidson.com."
-  name     = each.key
+  depends_on = [proxmox_virtual_environment_vm.rancher_k3s_hosts]
+  for_each   = var.proxmox_virtual_machines
+  zone       = "buzzdavidson.com."
+  name       = each.key
   addresses = [
-    each.value
+    each.value.ip_address
   ]
 }

@@ -43,7 +43,6 @@
         pkg:
           - emacs-nox
           - net-tools
-          - htop
           - systemd-timesyncd
 
     - name: set timezone

@@ -1,2 +1,16 @@
 [ ] Configure graphite exporter for TrueNAS
 [ ] Configure graphite and influx metric servers in proxmox
+
+
+datastore
+packages to install
+proxmox node (host)
+tags
+pool (?)
+core count
+machine type
+memory
+startup (order, up delay, down delay)
+ip address, gateway
+hostname
+vlan id
