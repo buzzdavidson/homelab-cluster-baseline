@@ -140,27 +140,3 @@ resource "null_resource" "update_hostnames" {
   }
 }
 
-# Prepare the VMs for docker installation
-resource "null_resource" "prepare_for_docker" {
-  depends_on = [null_resource.update_hostnames]
-  for_each   = var.proxmox_virtual_machines
-  triggers = {
-    fqdn = each.value.fqdn
-  }
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      host        = each.value.ip_address
-      user        = var.vm_account_username
-      password    = var.vm_account_password
-      agent       = false
-      private_key = file("~/.ssh/id_cluster_rsa")
-    }
-    inline = [
-      "sudo ufw disable",
-      "sudo swapoff -a",
-      "sudo sed -i '/ swap / s/^/#/' /etc/fstab",
-    ]
-  }
-
-}

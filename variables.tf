@@ -162,7 +162,7 @@ variable "proxmox_virtual_machines" {
       memory          = 4096
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-1"
-      tags            = ["terraform", "home", "k3s"]
+      tags            = ["terraform", "rancher", "k3s"]
       vlan_id         = 100
     },
     "rancher-k3s-2" = {
@@ -176,7 +176,7 @@ variable "proxmox_virtual_machines" {
       memory          = 4096
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-2"
-      tags            = ["terraform", "home", "k3s"]
+      tags            = ["terraform", "rancher", "k3s"]
       vlan_id         = 100
     },
     "rancher-k3s-3" = {
@@ -190,8 +190,22 @@ variable "proxmox_virtual_machines" {
       memory          = 4096
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-3"
-      tags            = ["terraform", "home", "k3s"]
+      tags            = ["terraform", "rancher", "k3s"]
       vlan_id         = 100
     },
   }
 }
+
+variable "portainer_hostname" {
+  type        = string
+  description = "Hostname of the Portainer VM"
+  default     = "home-portainer-1.buzzdavidson.com"
+}
+
+variable "portainer_admin_password" {
+  type        = string
+  description = "Password for the Portainer admin user"
+  sensitive   = true
+}
+
+
