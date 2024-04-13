@@ -18,7 +18,7 @@ variable "portainer_ip_address" {
   description = "IP Address of the Portainer VM"
 }
 
-variable "portainer_admin_password" {
+variable "portainer_admin_password_hash" {
   type        = string
   description = "Password for the Portainer admin user"
   sensitive   = true

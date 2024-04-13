@@ -202,9 +202,15 @@ variable "portainer_hostname" {
   default     = "home-portainer-1.buzzdavidson.com"
 }
 
-variable "portainer_admin_password" {
+variable "portainer_license_key" {
   type        = string
-  description = "Password for the Portainer admin user"
+  description = "License key for Portainer"
+  sensitive   = true
+}
+
+variable "portainer_admin_password_hash" {
+  type        = string
+  description = "Hashed password for the Portainer admin user"
   sensitive   = true
 }
 

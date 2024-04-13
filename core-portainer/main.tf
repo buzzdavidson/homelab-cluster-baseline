@@ -1,3 +1,17 @@
+#===============================================================================
+# Setup Portainer
+#
+# This module will install docker and portainer on the target VM.  
+# The instance will require manual configuration:
+#   - navigate to (ip address):9000
+#   - set the admin password
+#   - set the license key
+#   - add the local docker instance as an environment
+#   - configure git keys
+#   - add repo for desired stacks
+#
+#===============================================================================
+
 # Prepare the VMs for docker installation
 resource "null_resource" "prepare_for_docker" {
   triggers = {
@@ -47,17 +61,26 @@ resource "null_resource" "install_docker" {
   }
 }
 
-resource "docker_network" "portainer" {
+resource "docker_network" "proxy" {
   depends_on = [null_resource.install_docker]
   provider   = docker
-  name       = "portainer"
+  name       = "proxy"
+}
+
+resource "docker_volume" "portainer_data" {
+  depends_on = [null_resource.install_docker]
+  provider   = docker
+  name       = "portainer_data"
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "docker_container" "portainer" {
-  depends_on = [docker_network.portainer]
+  depends_on = [docker_network.proxy]
   provider   = docker
   name       = "portainer"
-  image      = "portainer/portainer-ce:latest"
+  image      = "portainer/portainer-ee:latest"
   restart    = "unless-stopped"
   ports {
     internal = 9000
@@ -70,15 +93,11 @@ resource "docker_container" "portainer" {
   }
   volumes {
     container_path = "/data"
-    host_path      = "/data"
+    volume_name    = docker_volume.portainer_data.name
   }
   networks_advanced {
-    name = docker_network.portainer.name
+    name = docker_network.proxy.name
   }
-  env = [
-    "ADMIN_USERNAME=admin",
-    "ADMIN_PASSWORD=var.portainer_admin_password",
-  ]
 }
 
 resource "dns_a_record_set" "portainer-service-dns" {
