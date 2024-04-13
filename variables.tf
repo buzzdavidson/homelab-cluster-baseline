@@ -211,6 +211,28 @@ variable "proxmox_virtual_machines" {
   }
 }
 
+variable "proxmox_servers" {
+  type = map(string)
+  default = {
+    proxmox-1 = "10.80.100.21",
+    proxmox-2 = "10.80.100.22",
+    proxmox-3 = "10.80.100.23",
+    proxmox-4 = "10.80.100.24",
+    proxmox-5 = "10.80.100.25",
+    proxmox-6 = "10.80.100.26",
+  }
+}
+
+variable "proxmox_vlans" {
+  type = map(number)
+  default = {
+    core_services_vlan     = 100,
+    harvester_vlan         = 140,
+    buzzdavidson_home_vlan = 160
+  }
+}
+
+
 variable "portainer_hostname" {
   type        = string
   description = "Hostname of the Portainer VM"

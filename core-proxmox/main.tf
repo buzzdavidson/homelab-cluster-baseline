@@ -19,7 +19,6 @@
 # [x] - Ensure time synchronization properly configured
 #       https://pve.proxmox.com/pve-docs/pve-admin-guide.html
 # [ ] - Configure backups
-# [ ] - Add proxmox management network as second interface
 # [ ] - Update nfs-flash storage to support snippets 
 #
 # MISC STUFF

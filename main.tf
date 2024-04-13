@@ -22,6 +22,8 @@ module "core-proxmox" {
   cluster_public_key  = var.cluster_public_key
   vm_account_password = var.vm_account_password
   vm_account_username = var.vm_account_username
+  proxmox_servers     = var.proxmox_servers
+  proxmox_vlans       = var.proxmox_vlans
 }
 
 module "core-proxmox-virtualmachines" {
@@ -39,12 +41,12 @@ module "core-proxmox-virtualmachines" {
 }
 
 module "core-portainer" {
-  source                   = "./core-portainer"
-  depends_on               = [module.core-proxmox-virtualmachines]
-  vm_account_password      = var.vm_account_password
-  vm_account_username      = var.vm_account_username
-  portainer_hostname       = var.proxmox_virtual_machines["home-portainer-1"].fqdn
-  portainer_ip_address     = var.proxmox_virtual_machines["home-portainer-1"].ip_address
+  source                        = "./core-portainer"
+  depends_on                    = [module.core-proxmox-virtualmachines]
+  vm_account_password           = var.vm_account_password
+  vm_account_username           = var.vm_account_username
+  portainer_hostname            = var.proxmox_virtual_machines["home-portainer-1"].fqdn
+  portainer_ip_address          = var.proxmox_virtual_machines["home-portainer-1"].ip_address
   portainer_admin_password_hash = var.portainer_admin_password_hash
   providers = {
     dns    = dns
