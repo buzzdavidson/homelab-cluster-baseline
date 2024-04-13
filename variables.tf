@@ -96,7 +96,7 @@ variable "proxmox_virtual_machines" {
   }))
   default = {
     "home-portainer-1" = {
-      cpu_cores       = 4
+      cpu_cores       = 8
       datastore_id    = "nfs-flash"
       disk_interface  = "virtio0"
       disk_size_gb    = 30
@@ -193,6 +193,21 @@ variable "proxmox_virtual_machines" {
       tags            = ["terraform", "rancher", "k3s"]
       vlan_id         = 100
     },
+    "harvester-witness" = {
+      cpu_cores       = 2
+      datastore_id    = "local-lvm"
+      disk_interface  = "virtio0"
+      disk_size_gb    = 10
+      fqdn            = "harvester-witness.buzzdavidson.com"
+      gateway_address = "10.140.100.1"
+      ip_address      = "10.140.100.23"
+      memory          = 2048
+      network_bridge  = "vmbr0"
+      proxmox_node    = "proxmox-6"
+      tags            = ["terraform", "harvester"]
+      vlan_id         = 140
+    },
+
   }
 }
 

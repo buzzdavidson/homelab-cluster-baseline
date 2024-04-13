@@ -68,7 +68,7 @@ resource "docker_network" "proxy" {
 }
 
 resource "docker_volume" "portainer_data" {
-  depends_on = [null_resource.install_docker]
+  depends_on = [docker_network.proxy]
   provider   = docker
   name       = "portainer_data"
   lifecycle {
@@ -77,11 +77,12 @@ resource "docker_volume" "portainer_data" {
 }
 
 resource "docker_container" "portainer" {
-  depends_on = [docker_network.proxy]
-  provider   = docker
-  name       = "portainer"
-  image      = "portainer/portainer-ee:latest"
-  restart    = "unless-stopped"
+  depends_on     = [docker_volume.portainer_data]
+  provider       = docker
+  name           = "portainer"
+  image          = "portainer/portainer-ee:latest"
+  restart        = "unless-stopped"
+  remove_volumes = false
   ports {
     internal = 9000
     external = 9000
