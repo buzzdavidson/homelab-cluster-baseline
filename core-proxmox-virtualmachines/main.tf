@@ -42,9 +42,9 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   node_name    = "proxmox-1"
   url          = "https://cloud-images.ubuntu.com/jammy/20240403/jammy-server-cloudimg-amd64-disk-kvm.img"
   overwrite    = true
-  # lifecycle {
-  #   prevent_destroy = true
-  # }
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "proxmox_virtual_environment_vm" "rancher_k3s_hosts" {
