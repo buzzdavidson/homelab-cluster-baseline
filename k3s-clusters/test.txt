@@ -1,0 +1,6 @@
+changed in vars:
+apiserver_endpoint
+k3s_token
+metal_lb_ip_range
+
+* do we want/need/have custom repos?  update vars if so

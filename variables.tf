@@ -251,4 +251,33 @@ variable "portainer_admin_password_hash" {
   sensitive   = true
 }
 
+variable "buzzdavidson-home-join-token" {
+  type        = string
+  description = "Join token for the buzzdavidson-home k3s cluster"
+  sensitive   = true
+}
+
+variable "rancher-join-token" {
+  type = string
+  description = "join token for the rancher k3s cluster"
+  sensitive = true
+}
+
+variable "k3s_clusters" {
+  type = map(object({
+    apiserver_endpoint = string
+    metal_lb_ip_range  = string
+  }))
+  default = {
+    "buzzdavidson-home" = {
+      apiserver_endpoint = "10.160.100.100"
+      metal_lb_ip_range  = "10.160.100.125-10.160.100.199"
+    },
+    "rancher" = {
+      apiserver_endpoint = "10.100.100.100"
+      metal_lb_ip_range  = "10.160.100.125-10.160.100.199"
+    },
+
+  }
+}
 
