@@ -40,90 +40,24 @@ module "core-proxmox-virtualmachines" {
   proxmox_virtual_machines = var.proxmox_virtual_machines
 }
 
-module "core-portainer" {
-  source                        = "./core-portainer"
-  depends_on                    = [module.core-proxmox-virtualmachines]
-  vm_account_password           = var.vm_account_password
-  vm_account_username           = var.vm_account_username
-  portainer_hostname            = var.proxmox_virtual_machines["home-portainer-1"].fqdn
-  portainer_ip_address          = var.proxmox_virtual_machines["home-portainer-1"].ip_address
-  portainer_admin_password_hash = var.portainer_admin_password_hash
-  providers = {
-    dns    = dns
-    docker = docker
-  }
+# module "core-portainer" {
+#   source                        = "./core-portainer"
+#   depends_on                    = [module.core-proxmox-virtualmachines]
+#   vm_account_password           = var.vm_account_password
+#   vm_account_username           = var.vm_account_username
+#   portainer_hostname            = var.proxmox_virtual_machines["home-portainer-1"].fqdn
+#   portainer_ip_address          = var.proxmox_virtual_machines["home-portainer-1"].ip_address
+#   portainer_admin_password_hash = var.portainer_admin_password_hash
+#   providers = {
+#     dns    = dns
+#     docker = docker
+#   }
+# }
+
+module "k3s-clusters" {
+  source                       = "./k3s-clusters"
+  depends_on                   = [module.core-proxmox-virtualmachines]
+  k3s_clusters                 = var.k3s_clusters
+  rancher_join_token           = var.rancher_join_token
+  buzzdavidson_home_join_token = var.buzzdavidson_home_join_token
 }
-
-# module "rancher-k3s-proxmox" {
-#   source     = "./rancher-k3s-proxmox"
-#   depends_on = [module.core-proxmox]
-#   providers = {
-#     proxmox = proxmox.bpg
-#     dns     = dns
-#   }
-#   cluster_public_key  = var.cluster_public_key
-#   vm_account_password = var.vm_account_password
-#   vm_account_username = var.vm_account_username
-#   rancher_k3s_servers = var.rancher_k3s_servers
-# }
-
-# module "rancher-k3s-proxmox-config" {
-#   source                     = "./rancher-k3s-proxmox-config"
-#   depends_on                 = [module.rancher-k3s-proxmox]
-#   domain_ntp_server          = var.domain_ntp_server
-#   domain_fallback_ntp_server = var.domain_fallback_ntp_server
-# }
-
-# module "rancher-k3s-install" {
-#   source     = "./rancher-k3s-install"
-#   depends_on = [module.rancher-k3s-proxmox-config]
-# }
-
-# module "rancher-emberstack-reflector-install" {
-#   source     = "./rancher-emberstack-reflector-install"
-#   depends_on = [module.rancher-k3s-install]
-#   providers = {
-#     helm       = helm
-#     kubernetes = kubernetes
-#     kubectl    = kubectl
-#   }
-# }
-
-# module "rancher-cert-mgr-install" {
-#   source     = "./rancher-cert-mgr-install"
-#   depends_on = [module.rancher-emberstack-reflector-install]
-#   providers = {
-#     dns        = dns
-#     helm       = helm
-#     kubernetes = kubernetes
-#     kubectl    = kubectl
-#   }
-#   letsencrypt_email    = var.letsencrypt_email
-#   cloudflare_api_token = var.cloudflare_api_token
-# }
-
-# module "rancher-traefik-install" {
-#   source     = "./rancher-traefik-install"
-#   depends_on = [module.rancher-cert-mgr-install]
-#   providers = {
-#     dns        = dns
-#     helm       = helm
-#     kubernetes = kubernetes
-#     kubectl    = kubectl
-#   }
-#   traefik_dashboard_credentials = var.traefik_dashboard_credentials
-# }
-
-# module "rancher-install" {
-#   source     = "./rancher-install"
-#   depends_on = [module.rancher-traefik-install]
-#   providers = {
-#     dns        = dns
-#     helm       = helm
-#     kubernetes = kubernetes
-#     kubectl    = kubectl
-#   }
-#   rancher_bootstrap_password = var.rancher_bootstrap_password
-#   kubeconfig_path            = var.kubeconfig_path
-#   letsencrypt_email          = var.letsencrypt_email
-# }
