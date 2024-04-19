@@ -1,13 +1,11 @@
-variable "buzzdavidson-home-join-token" {
+variable "buzzdavidson_home_join_token" {
   type        = string
   description = "Join token for the buzzdavidson-home k3s cluster"
-  sensitive   = true
 }
 
-variable "rancher-join-token" {
+variable "rancher_join_token" {
   type        = string
   description = "join token for the rancher k3s cluster"
-  sensitive   = true
 }
 
 variable "k3s_clusters" {
