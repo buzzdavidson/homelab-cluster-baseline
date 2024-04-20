@@ -130,7 +130,7 @@ variable "proxmox_virtual_machines" {
       disk_size_gb    = 30
       fqdn            = "home-k3s-2.buzzdavidson.com"
       gateway_address = "10.160.100.1"
-      ip_address      = "10.160.100.21"
+      ip_address      = "10.160.100.22"
       memory          = 8192
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-5"
@@ -144,7 +144,7 @@ variable "proxmox_virtual_machines" {
       disk_size_gb    = 30
       fqdn            = "home-k3s-3.buzzdavidson.com"
       gateway_address = "10.160.100.1"
-      ip_address      = "10.160.100.21"
+      ip_address      = "10.160.100.23"
       memory          = 8192
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-6"
@@ -200,7 +200,7 @@ variable "proxmox_virtual_machines" {
       disk_size_gb    = 10
       fqdn            = "harvester-witness.buzzdavidson.com"
       gateway_address = "10.140.100.1"
-      ip_address      = "10.140.100.23"
+      ip_address      = "10.140.100.66"
       memory          = 2048
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-6"

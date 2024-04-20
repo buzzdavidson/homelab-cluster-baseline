@@ -40,6 +40,7 @@ module "core-proxmox-virtualmachines" {
   proxmox_virtual_machines = var.proxmox_virtual_machines
 }
 
+# this needs to be updated to initialize the dns provider in module, as the host isnt ready yet
 # module "core-portainer" {
 #   source                        = "./core-portainer"
 #   depends_on                    = [module.core-proxmox-virtualmachines]

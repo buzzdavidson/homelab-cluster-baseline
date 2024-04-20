@@ -30,7 +30,7 @@ resource "null_resource" "provision_home_cluster" {
       k3s-ansible/site.yml \
       -e apiserver_endpoint="${var.k3s_clusters["buzzdavidson-home"].apiserver_endpoint}" \
       -e metal_lb_ip_range="${var.k3s_clusters["buzzdavidson-home"].metal_lb_ip_range}" \
-      -e k3s_token="${var.rancher_join_token}" \
+      -e k3s_token="${var.buzzdavidson_home_join_token}" \
     EOT
   }
 }
