@@ -12,10 +12,6 @@ terraform {
       source  = "hashicorp/null"
       version = "3.2.2"
     }
-    # docker = {
-    #   source  = "kreuzwerker/docker"
-    #   version = "3.0.2"
-    # }
   }
 }
 
@@ -67,8 +63,4 @@ provider "dns" {
   }
 }
 
-# provider "docker" {
-#   host     = "ssh://${var.vm_account_username}@${var.portainer_hostname}"
-#   ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
-# }
 

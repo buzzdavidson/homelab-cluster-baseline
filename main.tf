@@ -40,7 +40,6 @@ module "core-proxmox-virtualmachines" {
   proxmox_virtual_machines = var.proxmox_virtual_machines
 }
 
-# this needs to be updated to initialize the dns provider in module, as the host isnt ready yet
 # module "core-portainer" {
 #   source                        = "./core-portainer"
 #   depends_on                    = [module.core-proxmox-virtualmachines]
@@ -50,8 +49,7 @@ module "core-proxmox-virtualmachines" {
 #   portainer_ip_address          = var.proxmox_virtual_machines["home-portainer-1"].ip_address
 #   portainer_admin_password_hash = var.portainer_admin_password_hash
 #   providers = {
-#     dns    = dns
-#     docker = docker
+#     dns = dns
 #   }
 # }
 

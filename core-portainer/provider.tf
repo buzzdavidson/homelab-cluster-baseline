@@ -3,10 +3,10 @@ terraform {
     dns = {
       source = "hashicorp/dns"
     }
-    docker = {
-      source = "kreuzwerker/docker"
-    }
   }
 }
+
+
+
 
 
