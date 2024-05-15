@@ -12,6 +12,7 @@
 #
 #===============================================================================
 
+
 # Prepare the VMs for docker installation
 resource "null_resource" "prepare_for_docker" {
   triggers = {
@@ -56,53 +57,38 @@ resource "null_resource" "install_docker" {
       "sudo apt update",
       "sudo apt install docker-ce docker-ce-cli containerd.io -y",
       "sudo usermod -aG docker ${var.vm_account_username}",
-      "docker run hello-world",
+      "sudo docker run hello-world",
+      "sudo touch /var/run/reboot-required",
     ]
   }
 }
 
-resource "docker_network" "proxy" {
+resource "null_resource" "install_portainer" {
   depends_on = [null_resource.install_docker]
-  provider   = docker
-  name       = "proxy"
-}
-
-resource "docker_volume" "portainer_data" {
-  depends_on = [docker_network.proxy]
-  provider   = docker
-  name       = "portainer_data"
-  lifecycle {
-    prevent_destroy = true
+  triggers = {
+    portainer_hostname = var.portainer_hostname
   }
-}
-
-resource "docker_container" "portainer" {
-  depends_on     = [docker_volume.portainer_data]
-  provider       = docker
-  name           = "portainer"
-  image          = "portainer/portainer-ee:latest"
-  restart        = "unless-stopped"
-  remove_volumes = false
-  ports {
-    internal = 9000
-    external = 9000
-  }
-  volumes {
-    container_path = "/var/run/docker.sock"
-    host_path      = "/var/run/docker.sock"
-    read_only      = true
-  }
-  volumes {
-    container_path = "/data"
-    volume_name    = docker_volume.portainer_data.name
-  }
-  networks_advanced {
-    name = docker_network.proxy.name
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      host        = var.portainer_hostname
+      user        = var.vm_account_username
+      password    = var.vm_account_password
+      agent       = false
+      private_key = file("~/.ssh/id_cluster_rsa")
+    }
+    inline = [
+      "sudo chown ${var.vm_account_username}:${var.vm_account_username} /home/${var.vm_account_username}/docker-compose.yml",
+      "cd /home/${var.vm_account_username}",
+      "docker volume create portainer_data",
+      "docker network create proxy",
+      "docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data --network proxy portainer/portainer-ee:2.20.1-alpine"
+    ]
   }
 }
 
 resource "dns_a_record_set" "portainer-service-dns" {
-  depends_on = [docker_container.portainer]
+  depends_on = [null_resource.install_portainer]
   zone       = "buzzdavidson.com."
   name       = "*.home"
   addresses = [

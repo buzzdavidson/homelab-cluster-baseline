@@ -1,6 +1,6 @@
 [ ] Configure graphite exporter for TrueNAS
 [ ] Configure graphite and influx metric servers in proxmox
-
+[ ] Create routine portainer backup to known location
 
 datastore
 packages to install

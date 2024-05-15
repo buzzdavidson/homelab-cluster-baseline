@@ -245,6 +245,12 @@ variable "portainer_license_key" {
   sensitive   = true
 }
 
+variable "portainer_ops_token" {
+  type        = string
+  description = "Ops token for Portainer"
+  sensitive   = true
+}
+
 variable "portainer_admin_password_hash" {
   type        = string
   description = "Hashed password for the Portainer admin user"
