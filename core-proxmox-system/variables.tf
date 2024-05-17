@@ -7,3 +7,10 @@ variable "domain_fallback_ntp_server" {
   type        = string
   description = "Fallback NTP server for domain"
 }
+
+variable "ansible_inventory_content" {
+  type = string
+}
+
+
+

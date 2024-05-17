@@ -161,7 +161,7 @@ variable "proxmox_virtual_machines" {
       ip_address      = "10.100.100.21"
       memory          = 4096
       network_bridge  = "vmbr0"
-      proxmox_node    = "proxmox-1"
+      proxmox_node    = "proxmox-4"
       tags            = ["terraform", "rancher", "k3s"]
       vlan_id         = 100
     },
@@ -175,7 +175,7 @@ variable "proxmox_virtual_machines" {
       ip_address      = "10.100.100.22"
       memory          = 4096
       network_bridge  = "vmbr0"
-      proxmox_node    = "proxmox-2"
+      proxmox_node    = "proxmox-5"
       tags            = ["terraform", "rancher", "k3s"]
       vlan_id         = 100
     },
@@ -189,7 +189,7 @@ variable "proxmox_virtual_machines" {
       ip_address      = "10.100.100.23"
       memory          = 4096
       network_bridge  = "vmbr0"
-      proxmox_node    = "proxmox-3"
+      proxmox_node    = "proxmox-6"
       tags            = ["terraform", "rancher", "k3s"]
       vlan_id         = 100
     },
@@ -214,9 +214,6 @@ variable "proxmox_virtual_machines" {
 variable "proxmox_servers" {
   type = map(string)
   default = {
-    proxmox-1 = "10.80.100.21",
-    proxmox-2 = "10.80.100.22",
-    proxmox-3 = "10.80.100.23",
     proxmox-4 = "10.80.100.24",
     proxmox-5 = "10.80.100.25",
     proxmox-6 = "10.80.100.26",
@@ -284,4 +281,26 @@ variable "k3s_clusters" {
 
   }
 }
+
+variable "ansible_inventory_content" {
+  type    = string
+  default = <<EOF
+[core_proxmox_hosts]
+10.80.100.24
+10.80.100.25
+10.80.100.26
+
+[core_proxmox_hosts:vars]
+ansible_user=root
+EOF
+}
+
+variable "proxmox_primary_node_name" {
+  type        = string
+  description = "Name of the primary Proxmox node"
+  default     = "proxmox-4"
+}
+
+
+
 

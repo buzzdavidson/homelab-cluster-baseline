@@ -10,6 +10,7 @@ module "core-proxmox-system" {
   depends_on                 = [module.core-dns-technitium]
   domain_ntp_server          = var.domain_ntp_server
   domain_fallback_ntp_server = var.domain_fallback_ntp_server
+  ansible_inventory_content  = var.ansible_inventory_content
 }
 
 module "core-proxmox" {
@@ -33,11 +34,12 @@ module "core-proxmox-virtualmachines" {
     proxmox = proxmox.bpg
     dns     = dns
   }
-  cluster_public_key       = var.cluster_public_key
-  cluster_private_key      = var.cluster_private_key
-  vm_account_password      = var.vm_account_password
-  vm_account_username      = var.vm_account_username
-  proxmox_virtual_machines = var.proxmox_virtual_machines
+  cluster_public_key        = var.cluster_public_key
+  cluster_private_key       = var.cluster_private_key
+  vm_account_password       = var.vm_account_password
+  vm_account_username       = var.vm_account_username
+  proxmox_virtual_machines  = var.proxmox_virtual_machines
+  proxmox_primary_node_name = var.proxmox_primary_node_name
 }
 
 module "core-portainer" {
@@ -53,10 +55,10 @@ module "core-portainer" {
   }
 }
 
-module "k3s-clusters" {
-  source                       = "./k3s-clusters"
-  depends_on                   = [module.core-proxmox-virtualmachines]
-  k3s_clusters                 = var.k3s_clusters
-  rancher_join_token           = var.rancher_join_token
-  buzzdavidson_home_join_token = var.buzzdavidson_home_join_token
-}
+# module "k3s-clusters" {
+#   source                       = "./k3s-clusters"
+#   depends_on                   = [module.core-proxmox-virtualmachines]
+#   k3s_clusters                 = var.k3s_clusters
+#   rancher_join_token           = var.rancher_join_token
+#   buzzdavidson_home_join_token = var.buzzdavidson_home_join_token
+# }

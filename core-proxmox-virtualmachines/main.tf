@@ -6,7 +6,7 @@
 resource "proxmox_virtual_environment_file" "k3s_cloud_config" {
   content_type = "snippets"
   datastore_id = "nfs-flash"
-  node_name    = "proxmox-1"
+  node_name    = var.proxmox_primary_node_name
 
   source_raw {
     data = <<EOF
@@ -39,7 +39,7 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   depends_on   = [proxmox_virtual_environment_file.k3s_cloud_config]
   content_type = "iso"
   datastore_id = "nfs-flash"
-  node_name    = "proxmox-1"
+  node_name    = var.proxmox_primary_node_name
   url          = "https://cloud-images.ubuntu.com/jammy/20240403/jammy-server-cloudimg-amd64-disk-kvm.img"
   overwrite    = true
 }

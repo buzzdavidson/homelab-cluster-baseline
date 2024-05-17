@@ -25,18 +25,6 @@ provider "proxmox" {
     username = var.proxmox_ssh_username
     password = var.proxmox_ssh_password
     node {
-      name    = "proxmox-1"
-      address = "10.80.100.21"
-    }
-    node {
-      name    = "proxmox-2"
-      address = "10.80.100.22"
-    }
-    node {
-      name    = "proxmox-3"
-      address = "10.80.100.23"
-    }
-    node {
       name    = "proxmox-4"
       address = "10.80.100.24"
     }
@@ -48,9 +36,6 @@ provider "proxmox" {
       name    = "proxmox-6"
       address = "10.80.100.26"
     }
-
-
-
   }
 }
 

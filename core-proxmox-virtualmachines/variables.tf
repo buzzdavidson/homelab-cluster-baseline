@@ -37,3 +37,8 @@ variable "vm_account_password" {
   description = "Password for VMs"
 }
 
+variable "proxmox_primary_node_name" {
+  type        = string
+  description = "Name of the primary Proxmox node"
+}
+
