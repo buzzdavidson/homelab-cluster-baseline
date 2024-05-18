@@ -47,7 +47,7 @@ resource "dns_a_record_set" "core-service-dns" {
   zone       = "buzzdavidson.com."
   name       = "*"
   addresses = [
-    "10.160.100.72"
+    "10.160.100.70"
   ]
 }
 
