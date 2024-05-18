@@ -1,7 +1,7 @@
 #===============================================================================
 # Setup Portainer
 #
-# This module will install docker and portainer on the target VM.  
+# This module will install portainer on the target VM.  
 # The instance will require manual configuration:
 #   - navigate to (ip address):9000
 #   - set the admin password
@@ -12,59 +12,7 @@
 #
 #===============================================================================
 
-
-# Prepare the VMs for docker installation
-resource "null_resource" "prepare_for_docker" {
-  triggers = {
-    portainer_hostname = var.portainer_hostname
-  }
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      host        = var.portainer_hostname
-      user        = var.vm_account_username
-      password    = var.vm_account_password
-      agent       = false
-      private_key = file("~/.ssh/id_cluster_rsa")
-    }
-    inline = [
-      "sudo ufw disable",
-      "sudo swapoff -a",
-      "sudo sed -i '/ swap / s/^/#/' /etc/fstab",
-    ]
-  }
-}
-
-resource "null_resource" "install_docker" {
-  depends_on = [null_resource.prepare_for_docker]
-  triggers = {
-    portainer_hostname = var.portainer_hostname
-  }
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      host        = var.portainer_ip_address
-      user        = var.vm_account_username
-      password    = var.vm_account_password
-      agent       = false
-      private_key = file("~/.ssh/id_cluster_rsa")
-    }
-    inline = [
-      "sudo apt update",
-      "sudo apt install apt-transport-https ca-certificates curl software-properties-common -y",
-      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg --batch --no",
-      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
-      "sudo apt update",
-      "sudo apt install docker-ce docker-ce-cli containerd.io -y",
-      "sudo usermod -aG docker ${var.vm_account_username}",
-      "sudo docker run hello-world",
-      "sudo touch /var/run/reboot-required",
-    ]
-  }
-}
-
 resource "null_resource" "install_portainer" {
-  depends_on = [null_resource.install_docker]
   triggers = {
     portainer_hostname = var.portainer_hostname
   }
@@ -81,18 +29,44 @@ resource "null_resource" "install_portainer" {
       "sudo chown ${var.vm_account_username}:${var.vm_account_username} /home/${var.vm_account_username}/docker-compose.yml",
       "cd /home/${var.vm_account_username}",
       "docker volume create portainer_data",
-      "docker network create proxy",
-      "docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data --network proxy portainer/portainer-ee:2.20.1-alpine"
+      "docker run -d -p 8000:8000 -p 9443:9443 --label com.buzzdavidson.portainer=hide --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ee:${var.portainer_version}-alpine"
     ]
   }
 }
 
-resource "dns_a_record_set" "portainer-service-dns" {
+resource "dns_a_record_set" "home-service-dns" {
   depends_on = [null_resource.install_portainer]
   zone       = "buzzdavidson.com."
   name       = "*.home"
   addresses = [
-    var.portainer_ip_address
+    "10.160.100.70"
   ]
 }
 
+resource "dns_a_record_set" "core-service-dns" {
+  depends_on = [null_resource.install_portainer]
+  zone       = "buzzdavidson.com."
+  name       = "*"
+  addresses = [
+    "10.160.100.72"
+  ]
+}
+
+resource "null_resource" "install_portainer_agent" {
+  depends_on = [null_resource.install_portainer]
+  for_each   = var.docker_hosts
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      host        = each.value
+      user        = var.vm_account_username
+      password    = var.vm_account_password
+      agent       = false
+      private_key = file("~/.ssh/id_cluster_rsa")
+    }
+    inline = [
+      "docker network create proxy",
+      "docker run -d -p 9001:9001 --label com.buzzdavidson.portainer=hide --name portainer_agent --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker/volumes:/var/lib/docker/volumes --network proxy portainer/agent:${var.portainer_version}"
+    ]
+  }
+}

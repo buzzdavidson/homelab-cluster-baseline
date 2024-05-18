@@ -42,14 +42,24 @@ module "core-proxmox-virtualmachines" {
   proxmox_primary_node_name = var.proxmox_primary_node_name
 }
 
+module "core-docker" {
+  source              = "./core-docker"
+  depends_on          = [module.core-proxmox-virtualmachines]
+  vm_account_password = var.vm_account_password
+  vm_account_username = var.vm_account_username
+  docker_hosts        = var.docker_hosts
+}
+
 module "core-portainer" {
   source                        = "./core-portainer"
-  depends_on                    = [module.core-proxmox-virtualmachines]
+  depends_on                    = [module.core-docker]
   vm_account_password           = var.vm_account_password
   vm_account_username           = var.vm_account_username
   portainer_hostname            = var.proxmox_virtual_machines["home-portainer-1"].fqdn
   portainer_ip_address          = var.proxmox_virtual_machines["home-portainer-1"].ip_address
   portainer_admin_password_hash = var.portainer_admin_password_hash
+  portainer_version             = var.portainer_version
+  docker_hosts                  = var.docker_hosts
   providers = {
     dns = dns
   }

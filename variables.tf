@@ -96,17 +96,45 @@ variable "proxmox_virtual_machines" {
   }))
   default = {
     "home-portainer-1" = {
-      cpu_cores       = 8
+      cpu_cores       = 4
       datastore_id    = "nfs-flash"
       disk_interface  = "virtio0"
       disk_size_gb    = 30
       fqdn            = "home-portainer-1.buzzdavidson.com"
       gateway_address = "10.160.100.1"
       ip_address      = "10.160.100.69"
-      memory          = 8192
+      memory          = 4096
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-4"
       tags            = ["terraform", "home", "portainer"]
+      vlan_id         = 160
+    },
+    "home-docker-1" = {
+      cpu_cores       = 4
+      datastore_id    = "nfs-flash"
+      disk_interface  = "virtio0"
+      disk_size_gb    = 30
+      fqdn            = "home-docker-1.buzzdavidson.com"
+      gateway_address = "10.160.100.1"
+      ip_address      = "10.160.100.70"
+      memory          = 4096
+      network_bridge  = "vmbr0"
+      proxmox_node    = "proxmox-5"
+      tags            = ["terraform", "home", "docker"]
+      vlan_id         = 160
+    },
+    "core-docker-1" = {
+      cpu_cores       = 4
+      datastore_id    = "nfs-flash"
+      disk_interface  = "virtio0"
+      disk_size_gb    = 30
+      fqdn            = "core-docker-1.buzzdavidson.com"
+      gateway_address = "10.160.100.1"
+      ip_address      = "10.160.100.72"
+      memory          = 4096
+      network_bridge  = "vmbr0"
+      proxmox_node    = "proxmox-6"
+      tags            = ["terraform", "core", "docker"]
       vlan_id         = 160
     },
     "home-k3s-1" = {
@@ -300,6 +328,19 @@ variable "proxmox_primary_node_name" {
   description = "Name of the primary Proxmox node"
   default     = "proxmox-4"
 }
+
+variable "docker_hosts" {
+  type        = set(string)
+  description = "List of hostnames for docker installation"
+  default     = ["home-portainer-1.buzzdavidson.com", "home-docker-1.buzzdavidson.com", "core-docker-1.buzzdavidson.com"]
+}
+
+variable "portainer_version" {
+  type        = string
+  description = "Version of Portainer to install"
+  default     = "2.20.2"
+}
+
 
 
 
