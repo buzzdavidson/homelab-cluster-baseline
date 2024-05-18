@@ -26,9 +26,13 @@ resource "null_resource" "install_docker" {
       "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg --batch --no",
       "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
       "sudo apt update",
-      "sudo apt install docker-ce docker-ce-cli containerd.io -y",
+      "sudo apt install docker-ce docker-ce-cli containerd.io nfs-common -y",
       "sudo usermod -aG docker ${var.vm_account_username}",
-      "sudo docker run hello-world",
+      # "sudo docker run hello-world",
+      "sudo mkdir -p /mnt/applications",
+      "sudo chown -R root:docker /mnt/applications",
+      "echo '10.40.100.150:/mnt/flash-pool/nfs-shares/buzzdavidson-home/applications /mnt/applications nfs rw,hard,noatime 0 0' | sudo tee -a /etc/fstab",
+      "sudo mount -a",
       "sudo touch /var/run/reboot-required",
     ]
   }

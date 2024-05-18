@@ -26,10 +26,9 @@ resource "null_resource" "install_portainer" {
       private_key = file("~/.ssh/id_cluster_rsa")
     }
     inline = [
-      "sudo chown ${var.vm_account_username}:${var.vm_account_username} /home/${var.vm_account_username}/docker-compose.yml",
-      "cd /home/${var.vm_account_username}",
-      "docker volume create portainer_data",
-      "docker run -d -p 8000:8000 -p 9443:9443 --label com.buzzdavidson.portainer=hide --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ee:${var.portainer_version}-alpine"
+      # "sudo chown ${var.vm_account_username}:${var.vm_account_username} /home/${var.vm_account_username}/docker-compose.yml",
+      # "cd /home/${var.vm_account_username}",
+      "docker run -d -p 8000:8000 -p 9443:9443 --label com.buzzdavidson.portainer=hide --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /mnt/applications/portainer:/data portainer/portainer-ee:${var.portainer_version}-alpine"
     ]
   }
 }
@@ -65,8 +64,7 @@ resource "null_resource" "install_portainer_agent" {
       private_key = file("~/.ssh/id_cluster_rsa")
     }
     inline = [
-      "docker network create proxy",
-      "docker run -d -p 9001:9001 --label com.buzzdavidson.portainer=hide --name portainer_agent --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker/volumes:/var/lib/docker/volumes --network proxy portainer/agent:${var.portainer_version}"
+      "docker run -d -p 9001:9001 --label com.buzzdavidson.portainer=hide --name portainer_agent --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker/volumes:/var/lib/docker/volumes portainer/agent:${var.portainer_version}"
     ]
   }
 }
