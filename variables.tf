@@ -117,26 +117,40 @@ variable "proxmox_virtual_machines" {
       fqdn            = "home-docker-1.buzzdavidson.com"
       gateway_address = "10.160.100.1"
       ip_address      = "10.160.100.70"
-      memory          = 8192
+      memory          = 4096
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-5"
       tags            = ["terraform", "home", "docker"]
       vlan_id         = 160
     },
-    # "core-docker-1" = {
-    #   cpu_cores       = 4
-    #   datastore_id    = "nfs-flash"
-    #   disk_interface  = "virtio0"
-    #   disk_size_gb    = 30
-    #   fqdn            = "core-docker-1.buzzdavidson.com"
-    #   gateway_address = "10.160.100.1"
-    #   ip_address      = "10.160.100.72"
-    #   memory          = 4096
-    #   network_bridge  = "vmbr0"
-    #   proxmox_node    = "proxmox-6"
-    #   tags            = ["terraform", "core", "docker"]
-    #   vlan_id         = 160
-    # },
+    "core-docker-1" = {
+      cpu_cores       = 4
+      datastore_id    = "nfs-flash"
+      disk_interface  = "virtio0"
+      disk_size_gb    = 30
+      fqdn            = "core-docker-1.buzzdavidson.com"
+      gateway_address = "10.160.100.1"
+      ip_address      = "10.160.100.72"
+      memory          = 8192
+      network_bridge  = "vmbr0"
+      proxmox_node    = "proxmox-6"
+      tags            = ["terraform", "core", "docker"]
+      vlan_id         = 160
+    },
+    "gizmo-docker-1" = {
+      cpu_cores       = 4
+      datastore_id    = "nfs-flash"
+      disk_interface  = "virtio0"
+      disk_size_gb    = 30
+      fqdn            = "gizmo-docker-1.buzzdavidson.com"
+      gateway_address = "10.160.100.1"
+      ip_address      = "10.160.100.74"
+      memory          = 2048
+      network_bridge  = "vmbr0"
+      proxmox_node    = "proxmox-5"
+      tags            = ["terraform", "gizmo", "docker"]
+      vlan_id         = 160
+    },
     "home-k3s-1" = {
       cpu_cores       = 4
       datastore_id    = "local-lvm"
@@ -187,7 +201,7 @@ variable "proxmox_virtual_machines" {
       fqdn            = "rancher-k3s-1.buzzdavidson.com"
       gateway_address = "10.100.100.1"
       ip_address      = "10.100.100.21"
-      memory          = 4096
+      memory          = 2048
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-4"
       tags            = ["terraform", "rancher", "k3s"]
@@ -201,7 +215,7 @@ variable "proxmox_virtual_machines" {
       fqdn            = "rancher-k3s-2.buzzdavidson.com"
       gateway_address = "10.100.100.1"
       ip_address      = "10.100.100.22"
-      memory          = 4096
+      memory          = 2048
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-5"
       tags            = ["terraform", "rancher", "k3s"]
@@ -215,7 +229,7 @@ variable "proxmox_virtual_machines" {
       fqdn            = "rancher-k3s-3.buzzdavidson.com"
       gateway_address = "10.100.100.1"
       ip_address      = "10.100.100.23"
-      memory          = 4096
+      memory          = 2048
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-6"
       tags            = ["terraform", "rancher", "k3s"]
@@ -332,13 +346,13 @@ variable "proxmox_primary_node_name" {
 variable "docker_hosts" {
   type        = set(string)
   description = "List of hostnames for docker installation"
-  default     = ["home-portainer-1.buzzdavidson.com", "home-docker-1.buzzdavidson.com"]
+  default     = ["home-portainer-1.buzzdavidson.com", "home-docker-1.buzzdavidson.com", "core-docker-1.buzzdavidson.com", "gizmo-docker-1.buzzdavidson.com"]
 }
 
 variable "portainer_version" {
   type        = string
   description = "Version of Portainer to install"
-  default     = "2.20.2"
+  default     = "2.20.3"
 }
 
 

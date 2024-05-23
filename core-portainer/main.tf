@@ -45,9 +45,27 @@ resource "dns_a_record_set" "home-service-dns" {
 resource "dns_a_record_set" "core-service-dns" {
   depends_on = [null_resource.install_portainer]
   zone       = "buzzdavidson.com."
+  name       = "*.core"
+  addresses = [
+    "10.160.100.72"
+  ]
+}
+
+resource "dns_a_record_set" "gizmo-service-dns" {
+  depends_on = [null_resource.install_portainer]
+  zone       = "buzzdavidson.com."
+  name       = "*.gizmo"
+  addresses = [
+    "10.160.100.74"
+  ]
+}
+
+resource "dns_a_record_set" "primary-service-dns" {
+  depends_on = [null_resource.install_portainer]
+  zone       = "buzzdavidson.com."
   name       = "*"
   addresses = [
-    "10.160.100.70"
+    "10.160.100.100"
   ]
 }
 

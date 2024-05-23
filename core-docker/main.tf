@@ -28,7 +28,7 @@ resource "null_resource" "install_docker" {
       "sudo apt update",
       "sudo apt install docker-ce docker-ce-cli containerd.io nfs-common -y",
       "sudo usermod -aG docker ${var.vm_account_username}",
-      # "sudo docker run hello-world",
+      # "sudo docker run hello-world --rm",
       "sudo mkdir -p /mnt/applications",
       "sudo chown -R root:docker /mnt/applications",
       "echo '10.40.100.150:/mnt/flash-pool/nfs-shares/buzzdavidson-home/applications /mnt/applications nfs rw,hard,noatime 0 0' | sudo tee -a /etc/fstab",
