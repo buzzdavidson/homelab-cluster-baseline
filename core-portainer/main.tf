@@ -78,8 +78,15 @@ resource "null_resource" "install_portainer_agent" {
   }
 }
 
+resource "null_resource" "wait_for_portainer" {
+  depends_on = [terracurl_request.portainer_stack_core]
+  provisioner "local-exec" {
+    command = "sleep 30"
+  }
+}
+
 data "http" "portainer_init_admin_user" {
-  depends_on = [null_resource.install_portainer]
+  depends_on = [null_resource.wait_for_portainer]
   url        = "https://${var.portainer_hostname}:9443/api/users/admin/init"
   insecure   = true
   method     = "POST"
@@ -122,6 +129,8 @@ data "http" "portainer_login_admin_user" {
 locals {
   portainer_jwt_token    = jsondecode(data.http.portainer_login_admin_user.response_body)["jwt"]
   portainer_admin_userid = 1
+  homelab_monorepo_url   = "https://github.com/buzzdavidson/homelab-cluster-gitops-monorepo.git"
+  homelab_monorepo_ref   = "refs/heads/main"
 }
 
 resource "terracurl_request" "portainer_user_settings" {
@@ -159,10 +168,6 @@ resource "terracurl_request" "portainer_license" {
   })
   response_codes = [200]
 }
-# # future: post /restore to restore a backup
-# # future: post /chat to use openAI
-# # future: post /upload/tls/certificate
-# # post /stacks/create/standalone/repository to set up stack
 
 resource "terracurl_request" "portainer_settings_blacklist" {
   name            = "portainer_settings_blacklist"
@@ -227,7 +232,12 @@ resource "terracurl_request" "portainer_git_credentials" {
     "username" = "buzzdavidson",
     "password" = var.github_access_token
   })
-  response_codes = [201, 400]
+  response_codes = [201]
+
+}
+
+locals {
+  portainer_git_credentials_id = jsondecode(resource.terracurl_request.portainer_git_credentials.response)["gitCredential"]["id"]
 }
 
 resource "terracurl_request" "portainer_env_core" {
@@ -251,6 +261,10 @@ resource "terracurl_request" "portainer_env_core" {
   response_codes = [200]
 }
 
+locals {
+  portainer_env_core_id = jsondecode(resource.terracurl_request.portainer_env_core.response)["Id"]
+}
+
 resource "terracurl_request" "portainer_env_home" {
   name            = "portainer_env_home"
   depends_on      = [terracurl_request.portainer_git_credentials]
@@ -272,6 +286,10 @@ resource "terracurl_request" "portainer_env_home" {
   response_codes = [200]
 }
 
+locals {
+  portainer_env_home_id = jsondecode(resource.terracurl_request.portainer_env_home.response)["Id"]
+}
+
 resource "terracurl_request" "portainer_env_gizmo" {
   name            = "portainer_env_gizmo"
   depends_on      = [terracurl_request.portainer_git_credentials]
@@ -291,4 +309,39 @@ resource "terracurl_request" "portainer_env_gizmo" {
     "TLSSkipClientVerify"  = true,
   }
   response_codes = [200]
+}
+
+locals {
+  portainer_env_gizmo_id = jsondecode(resource.terracurl_request.portainer_env_gizmo.response)["Id"]
+}
+
+resource "terracurl_request" "portainer_stack_core" {
+  name            = "portainer_stack_core_admin"
+  depends_on      = [terracurl_request.portainer_env_core]
+  url             = "https://${var.portainer_hostname}:9443/api/stacks/create/standalone/repository"
+  skip_tls_verify = true
+  method          = "POST"
+  headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_parameters = {
+    "endpointId" = "${local.portainer_env_core_id}",
+  }
+  request_body = jsonencode({
+    "name" = "core-admin",
+    "autoUpdate" = {
+      "forcePullImage" = false,
+      "forceUpdate"    = false,
+      "interval"       = "5m"
+    },
+    "composeFile"               = "docker/core/admin/docker-compose.yml",
+    "repositoryAuthentication"  = true,
+    "repositoryGitCredentialId" = "${local.portainer_git_credentials_id}",
+    "repositoryReferenceName"   = "${local.homelab_monorepo_ref}",
+    "repositoryUrl"             = "${local.homelab_monorepo_url}",
+  })
+  response_codes = [200]
+  timeout        = 120
+
 }
