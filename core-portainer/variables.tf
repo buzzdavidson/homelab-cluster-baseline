@@ -24,6 +24,13 @@ variable "portainer_admin_password_hash" {
   sensitive   = true
 }
 
+variable "portainer_admin_password" {
+  type        = string
+  description = "Password for the Portainer admin user"
+  sensitive   = true
+}
+
+
 variable "docker_hosts" {
   type        = set(string)
   description = "List of hostnames for docker installation"

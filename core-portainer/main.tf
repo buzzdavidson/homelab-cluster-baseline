@@ -70,7 +70,7 @@ resource "dns_a_record_set" "primary-service-dns" {
 }
 
 resource "null_resource" "install_portainer_agent" {
-  depends_on = [null_resource.install_portainer]
+  depends_on = [dns_a_record_set.primary-service-dns]
   for_each   = var.docker_hosts
   provisioner "remote-exec" {
     connection {
@@ -86,3 +86,45 @@ resource "null_resource" "install_portainer_agent" {
     ]
   }
 }
+
+resource "http" "portainer_admin_password" {
+  depends_on = [null_resource.install_portainer]
+  url        = "https://${var.portainer_hostname}:9443/api/users/admin/init"
+  method     = "POST"
+  headers = {
+    "Content-Type" = "application/json"
+  }
+  body = jsonencode({
+    "Username" = "admin",
+    "Password" = var.portainer_admin_password
+  })
+}
+
+output "portainer_jwt_token" {
+  value = jsondecode(http.portainer_admin_password.body)["jwt"]
+}
+
+# future: post /restore to restore a backup
+# future: post /chat to use openAI
+
+# put /settings, "blackListedLabels": [{"name": "com.buzzdavidson.portainer", "value": "hide"}]
+# post /settings/experimental to enable openAI
+# post /users/{id}/openai to set openAI key
+# post /users/{id}/gitcredentials to add git credentials
+# post /stacks/create/standalone/repository to set up stack
+# post /upload/tls/certificate
+
+
+resource "http" "portainer_license" {
+  depends_on = [http.portainer_admin_password, output.portainer_jwt_token]
+  url        = "https://${var.portainer_hostname}:9443/api/licenses/add"
+  method     = "POST"
+  headers = {
+    "Authorization" = "Bearer ${output.portainer_jwt_token}"
+    "Content-Type"  = "application/json"
+  }
+  body = jsonencode({
+    "license" = var.portainer_license_key
+  })
+}
+

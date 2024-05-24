@@ -58,10 +58,12 @@ module "core-portainer" {
   portainer_hostname            = var.proxmox_virtual_machines["core-portainer-1"].fqdn
   portainer_ip_address          = var.proxmox_virtual_machines["core-portainer-1"].ip_address
   portainer_admin_password_hash = var.portainer_admin_password_hash
+  portainer_admin_password      = var.portainer_admin_password
   portainer_version             = var.portainer_version
   docker_hosts                  = var.docker_hosts
   providers = {
-    dns = dns
+    dns  = dns
+    http = http
   }
 }
 
