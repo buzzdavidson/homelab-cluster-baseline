@@ -3,9 +3,6 @@ terraform {
     dns = {
       source = "hashicorp/dns"
     }
-    http = {
-      source = "hashicorp/http"
-    }
   }
 }
 

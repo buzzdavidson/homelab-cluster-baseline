@@ -10,8 +10,8 @@
 #   - configure git keys
 #   - add repo for desired stacks
 #
+# https://www.hashicorp.com/blog/writing-terraform-for-unsupported-resources
 #===============================================================================
-
 resource "null_resource" "install_portainer" {
   triggers = {
     portainer_hostname = var.portainer_hostname
@@ -87,44 +87,146 @@ resource "null_resource" "install_portainer_agent" {
   }
 }
 
-resource "http" "portainer_admin_password" {
+data "http" "portainer_init_admin_user" {
   depends_on = [null_resource.install_portainer]
   url        = "https://${var.portainer_hostname}:9443/api/users/admin/init"
+  insecure   = true
   method     = "POST"
-  headers = {
-    "Content-Type" = "application/json"
+  request_headers = {
+    Content-Type = "application/json"
   }
-  body = jsonencode({
+  request_body = jsonencode({
     "Username" = "admin",
     "Password" = var.portainer_admin_password
   })
 }
 
-output "portainer_jwt_token" {
-  value = jsondecode(http.portainer_admin_password.body)["jwt"]
+resource "null_resource" "check_portainer_init_admin_user" {
+  # This will return a 409 if the user already exists, that's fine
+  #
+  # On success, this will attempt to execute the true command in the
+  # shell environment running terraform.
+  # On failure, this will attempt to execute the false command in the
+  # shell environment running terraform.
+  depends_on = [data.http.portainer_init_admin_user]
+  provisioner "local-exec" {
+    command = contains([200, 409], data.http.portainer_init_admin_user.status_code)
+  }
 }
 
-# future: post /restore to restore a backup
-# future: post /chat to use openAI
-
-# put /settings, "blackListedLabels": [{"name": "com.buzzdavidson.portainer", "value": "hide"}]
-# post /settings/experimental to enable openAI
-# post /users/{id}/openai to set openAI key
-# post /users/{id}/gitcredentials to add git credentials
-# post /stacks/create/standalone/repository to set up stack
-# post /upload/tls/certificate
-
-
-resource "http" "portainer_license" {
-  depends_on = [http.portainer_admin_password, output.portainer_jwt_token]
-  url        = "https://${var.portainer_hostname}:9443/api/licenses/add"
+data "http" "portainer_login_admin_user" {
+  depends_on = [null_resource.check_portainer_init_admin_user]
+  url        = "https://${var.portainer_hostname}:9443/api/auth"
+  insecure   = true
   method     = "POST"
-  headers = {
-    "Authorization" = "Bearer ${output.portainer_jwt_token}"
-    "Content-Type"  = "application/json"
+  request_headers = {
+    Content-Type = "application/json"
   }
-  body = jsonencode({
-    "license" = var.portainer_license_key
+  request_body = jsonencode({
+    "username" = "admin",
+    "password" = var.portainer_admin_password
   })
 }
 
+locals {
+  portainer_jwt_token    = jsondecode(data.http.portainer_login_admin_user.response_body)["jwt"]
+  portainer_admin_userid = 1
+}
+
+data "http" "portainer_user_settings" {
+  depends_on = [data.http.portainer_login_admin_user]
+  url        = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}"
+  insecure   = true
+  #method     = "PUT"
+  method = "POST"
+  request_headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_body = jsonencode({
+    "theme" : {
+      "color" : "dark",
+      "subtleUpgradeButton" : true
+    }
+  })
+}
+
+# # future: post /restore to restore a backup
+# # future: post /chat to use openAI
+# # future: post /upload/tls/certificate
+# # post /stacks/create/standalone/repository to set up stack
+
+data "http" "portainer_license" {
+  depends_on = [data.http.portainer_user_settings]
+  url        = "https://${var.portainer_hostname}:9443/api/licenses/add"
+  insecure   = true
+  method     = "POST"
+  request_headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_body = jsonencode({
+    "key" = var.portainer_license_key
+  })
+}
+
+data "http" "portainer_settings_blacklist" {
+  depends_on = [data.http.portainer_license]
+  url        = "https://${var.portainer_hostname}:9443/api/settings"
+  insecure   = true
+  #method     = "PUT"
+  method = "POST"
+  request_headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_body = jsonencode({
+    "blackListedLabels" = [{ "name" : "com.buzzdavidson.portainer", "value" : "hide" }]
+  })
+}
+
+data "http" "portainer_settings_experimental" {
+  depends_on = [data.http.portainer_settings_blacklist]
+  url        = "https://${var.portainer_hostname}:9443/api/settings/experimental"
+  insecure   = true
+  #method     = "PUT"
+  method = "POST"
+  request_headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_body = jsonencode({
+    "openAIIntegration" = true
+  })
+}
+
+data "http" "portainer_openai_key" {
+  depends_on = [data.http.portainer_settings_experimental]
+  url        = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}/openai"
+  insecure   = true
+  #method     = "PUT"
+  method = "POST"
+  request_headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_body = jsonencode({
+    "apiKey" = var.portainer_openai_key
+  })
+}
+
+data "http" "portainer_git_credentials" {
+  depends_on = [data.http.portainer_openai_key]
+  url        = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}/gitcredentials"
+  insecure   = true
+  method     = "POST"
+  request_headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_body = jsonencode({
+    "name"     = "buzzdavidson-github-token",
+    "username" = "buzzdavidson",
+    "password" = var.github_access_token
+  })
+}

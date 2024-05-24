@@ -41,3 +41,23 @@ variable "portainer_version" {
   description = "Version of Portainer to install"
 }
 
+variable "portainer_openai_key" {
+  type        = string
+  description = "OpenAI key for Portainer"
+  sensitive   = true
+}
+
+variable "github_access_token" {
+  type        = string
+  description = "GitHub access token for API access"
+  sensitive   = true
+}
+
+variable "portainer_license_key" {
+  type        = string
+  description = "License key for Portainer"
+  sensitive   = true
+}
+
+
+

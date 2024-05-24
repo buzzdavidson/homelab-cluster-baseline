@@ -360,6 +360,18 @@ variable "portainer_version" {
   default     = "2.20.3"
 }
 
+variable "portainer_openai_key" {
+  type        = string
+  description = "OpenAI key for Portainer"
+  sensitive   = true
+}
+
+variable "github_access_token" {
+  type        = string
+  description = "GitHub access token for API access"
+  sensitive   = true
+}
+
 
 
 

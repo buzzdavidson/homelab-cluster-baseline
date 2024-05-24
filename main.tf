@@ -60,10 +60,12 @@ module "core-portainer" {
   portainer_admin_password_hash = var.portainer_admin_password_hash
   portainer_admin_password      = var.portainer_admin_password
   portainer_version             = var.portainer_version
+  portainer_openai_key          = var.portainer_openai_key
+  portainer_license_key         = var.portainer_license_key
+  github_access_token           = var.github_access_token
   docker_hosts                  = var.docker_hosts
   providers = {
-    dns  = dns
-    http = http
+    dns = dns
   }
 }
 
