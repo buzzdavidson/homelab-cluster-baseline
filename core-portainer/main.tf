@@ -28,7 +28,7 @@ resource "null_resource" "install_portainer" {
     inline = [
       # "sudo chown ${var.vm_account_username}:${var.vm_account_username} /home/${var.vm_account_username}/docker-compose.yml",
       # "cd /home/${var.vm_account_username}",
-      "docker run -d -p 8000:8000 -p 9443:9443 --label com.buzzdavidson.portainer=hide --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /mnt/applications/portainer:/data portainer/portainer-ee:${var.portainer_version}-alpine"
+      "docker run -d -p 8000:8000 -p 9443:9443 --label com.buzzdavidson.portainer=hide --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /mnt/applications/core/portainer:/data portainer/portainer-ee:${var.portainer_version}-alpine"
     ]
   }
 }

@@ -55,8 +55,8 @@ module "core-portainer" {
   depends_on                    = [module.core-docker]
   vm_account_password           = var.vm_account_password
   vm_account_username           = var.vm_account_username
-  portainer_hostname            = var.proxmox_virtual_machines["home-portainer-1"].fqdn
-  portainer_ip_address          = var.proxmox_virtual_machines["home-portainer-1"].ip_address
+  portainer_hostname            = var.proxmox_virtual_machines["core-portainer-1"].fqdn
+  portainer_ip_address          = var.proxmox_virtual_machines["core-portainer-1"].ip_address
   portainer_admin_password_hash = var.portainer_admin_password_hash
   portainer_version             = var.portainer_version
   docker_hosts                  = var.docker_hosts

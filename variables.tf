@@ -95,18 +95,18 @@ variable "proxmox_virtual_machines" {
     network_bridge  = string
   }))
   default = {
-    "home-portainer-1" = {
+    "core-portainer-1" = {
       cpu_cores       = 4
       datastore_id    = "nfs-flash"
       disk_interface  = "virtio0"
       disk_size_gb    = 30
-      fqdn            = "home-portainer-1.buzzdavidson.com"
+      fqdn            = "core-portainer-1.buzzdavidson.com"
       gateway_address = "10.160.100.1"
       ip_address      = "10.160.100.69"
       memory          = 4096
       network_bridge  = "vmbr0"
       proxmox_node    = "proxmox-4"
-      tags            = ["terraform", "home", "portainer"]
+      tags            = ["terraform", "core", "portainer"]
       vlan_id         = 160
     },
     "home-docker-1" = {
@@ -275,7 +275,7 @@ variable "proxmox_vlans" {
 variable "portainer_hostname" {
   type        = string
   description = "Hostname of the Portainer VM"
-  default     = "home-portainer-1.buzzdavidson.com"
+  default     = "core-portainer-1.buzzdavidson.com"
 }
 
 variable "portainer_license_key" {
@@ -346,7 +346,7 @@ variable "proxmox_primary_node_name" {
 variable "docker_hosts" {
   type        = set(string)
   description = "List of hostnames for docker installation"
-  default     = ["home-portainer-1.buzzdavidson.com", "home-docker-1.buzzdavidson.com", "core-docker-1.buzzdavidson.com", "gizmo-docker-1.buzzdavidson.com"]
+  default     = ["core-portainer-1.buzzdavidson.com", "home-docker-1.buzzdavidson.com", "core-docker-1.buzzdavidson.com", "gizmo-docker-1.buzzdavidson.com"]
 }
 
 variable "portainer_version" {
