@@ -65,7 +65,8 @@ module "core-portainer" {
   github_access_token           = var.github_access_token
   docker_hosts                  = var.docker_hosts
   providers = {
-    dns = dns
+    dns       = dns
+    terracurl = terracurl
   }
 }
 

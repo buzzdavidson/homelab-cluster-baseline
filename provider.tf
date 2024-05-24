@@ -12,6 +12,10 @@ terraform {
       source  = "hashicorp/null"
       version = "3.2.2"
     }
+    terracurl = {
+      source  = "devops-rob/terracurl"
+      version = "1.2.1"
+    }
   }
 }
 
@@ -47,5 +51,7 @@ provider "dns" {
     key_secret    = var.dns_key_secret
   }
 }
+
+provider "terracurl" {}
 
 

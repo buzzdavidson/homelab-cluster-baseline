@@ -1,14 +1,7 @@
 #===============================================================================
 # Setup Portainer
 #
-# This module will install portainer on the target VM.  
-# The instance will require manual configuration:
-#   - navigate to (ip address):9000
-#   - set the admin password
-#   - set the license key
-#   - add the local docker instance as an environment
-#   - configure git keys
-#   - add repo for desired stacks
+# This module will install and configure portainer on the target VM.  
 #
 # https://www.hashicorp.com/blog/writing-terraform-for-unsupported-resources
 #===============================================================================
@@ -26,8 +19,6 @@ resource "null_resource" "install_portainer" {
       private_key = file("~/.ssh/id_cluster_rsa")
     }
     inline = [
-      # "sudo chown ${var.vm_account_username}:${var.vm_account_username} /home/${var.vm_account_username}/docker-compose.yml",
-      # "cd /home/${var.vm_account_username}",
       "docker run -d -p 8000:8000 -p 9443:9443 --label com.buzzdavidson.portainer=hide --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /mnt/applications/core/portainer:/data portainer/portainer-ee:${var.portainer_version}-alpine"
     ]
   }
@@ -133,13 +124,13 @@ locals {
   portainer_admin_userid = 1
 }
 
-data "http" "portainer_user_settings" {
-  depends_on = [data.http.portainer_login_admin_user]
-  url        = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}"
-  insecure   = true
-  #method     = "PUT"
-  method = "POST"
-  request_headers = {
+resource "terracurl_request" "portainer_user_settings" {
+  name            = "portainer_user_settings"
+  depends_on      = [data.http.portainer_login_admin_user]
+  url             = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}"
+  skip_tls_verify = true
+  method          = "PUT"
+  headers = {
     Authorization = "Bearer ${local.portainer_jwt_token}"
     Content-Type  = "application/json"
   }
@@ -149,78 +140,85 @@ data "http" "portainer_user_settings" {
       "subtleUpgradeButton" : true
     }
   })
+  response_codes = [200]
 }
 
+resource "terracurl_request" "portainer_license" {
+  name            = "portainer_license"
+  depends_on      = [terracurl_request.portainer_user_settings]
+  url             = "https://${var.portainer_hostname}:9443/api/licenses/add"
+  skip_tls_verify = true
+  method          = "POST"
+  headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_body = jsonencode({
+    "key" : var.portainer_license_key
+    "force" : true
+  })
+  response_codes = [200]
+}
 # # future: post /restore to restore a backup
 # # future: post /chat to use openAI
 # # future: post /upload/tls/certificate
 # # post /stacks/create/standalone/repository to set up stack
 
-data "http" "portainer_license" {
-  depends_on = [data.http.portainer_user_settings]
-  url        = "https://${var.portainer_hostname}:9443/api/licenses/add"
-  insecure   = true
-  method     = "POST"
-  request_headers = {
+resource "terracurl_request" "portainer_settings_blacklist" {
+  name            = "portainer_settings_blacklist"
+  depends_on      = [terracurl_request.portainer_license]
+  url             = "https://${var.portainer_hostname}:9443/api/settings"
+  skip_tls_verify = true
+  method          = "PUT"
+  headers = {
     Authorization = "Bearer ${local.portainer_jwt_token}"
     Content-Type  = "application/json"
   }
   request_body = jsonencode({
-    "key" = var.portainer_license_key
+    "blackListedLabels" : [{ "name" : "com.buzzdavidson.portainer", "value" : "hide" }]
   })
+  response_codes = [200]
 }
 
-data "http" "portainer_settings_blacklist" {
-  depends_on = [data.http.portainer_license]
-  url        = "https://${var.portainer_hostname}:9443/api/settings"
-  insecure   = true
-  #method     = "PUT"
-  method = "POST"
-  request_headers = {
+resource "terracurl_request" "portainer_settings_experimental" {
+  name            = "portainer_settings_experimental"
+  depends_on      = [terracurl_request.portainer_settings_blacklist]
+  url             = "https://${var.portainer_hostname}:9443/api/settings/experimental"
+  skip_tls_verify = true
+  method          = "PUT"
+  headers = {
     Authorization = "Bearer ${local.portainer_jwt_token}"
     Content-Type  = "application/json"
   }
   request_body = jsonencode({
-    "blackListedLabels" = [{ "name" : "com.buzzdavidson.portainer", "value" : "hide" }]
+    "openAIIntegration" : true
   })
+  response_codes = [204]
 }
 
-data "http" "portainer_settings_experimental" {
-  depends_on = [data.http.portainer_settings_blacklist]
-  url        = "https://${var.portainer_hostname}:9443/api/settings/experimental"
-  insecure   = true
-  #method     = "PUT"
-  method = "POST"
-  request_headers = {
-    Authorization = "Bearer ${local.portainer_jwt_token}"
-    Content-Type  = "application/json"
-  }
-  request_body = jsonencode({
-    "openAIIntegration" = true
-  })
-}
-
-data "http" "portainer_openai_key" {
-  depends_on = [data.http.portainer_settings_experimental]
-  url        = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}/openai"
-  insecure   = true
-  #method     = "PUT"
-  method = "POST"
-  request_headers = {
+data "terracurl_request" "portainer_openai_key" {
+  name            = "portainer_openai_key"
+  depends_on      = [terracurl_request.portainer_settings_experimental]
+  url             = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}/openai"
+  skip_tls_verify = true
+  method          = "PUT"
+  headers = {
     Authorization = "Bearer ${local.portainer_jwt_token}"
     Content-Type  = "application/json"
   }
   request_body = jsonencode({
     "apiKey" = var.portainer_openai_key
   })
+  response_codes = [204]
 }
 
-data "http" "portainer_git_credentials" {
-  depends_on = [data.http.portainer_openai_key]
-  url        = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}/gitcredentials"
-  insecure   = true
-  method     = "POST"
-  request_headers = {
+resource "terracurl_request" "portainer_git_credentials" {
+  name            = "portainer_git_credentials"
+  depends_on      = [data.terracurl_request.portainer_openai_key]
+  url             = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}/gitcredentials"
+  skip_tls_verify = true
+  method          = "POST"
+  headers = {
     Authorization = "Bearer ${local.portainer_jwt_token}"
     Content-Type  = "application/json"
   }
@@ -229,4 +227,68 @@ data "http" "portainer_git_credentials" {
     "username" = "buzzdavidson",
     "password" = var.github_access_token
   })
+  response_codes = [201, 400]
+}
+
+resource "terracurl_request" "portainer_env_core" {
+  name            = "portainer_env_core"
+  depends_on      = [terracurl_request.portainer_git_credentials]
+  url             = "https://${var.portainer_hostname}:9443/api/endpoints"
+  skip_tls_verify = true
+  method          = "POST"
+  headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_parameters = {
+    "Name"                 = "core-docker",
+    "EndpointCreationType" = 2,
+    "URL"                  = "https://core-docker-1.buzzdavidson.com:9001",
+    "TLS"                  = true,
+    "TLSSkipVerify"        = true,
+    "TLSSkipClientVerify"  = true,
+  }
+  response_codes = [200]
+}
+
+resource "terracurl_request" "portainer_env_home" {
+  name            = "portainer_env_home"
+  depends_on      = [terracurl_request.portainer_git_credentials]
+  url             = "https://${var.portainer_hostname}:9443/api/endpoints"
+  skip_tls_verify = true
+  method          = "POST"
+  headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_parameters = {
+    "Name"                 = "home-docker",
+    "EndpointCreationType" = 2,
+    "URL"                  = "https://home-docker-1.buzzdavidson.com:9001",
+    "TLS"                  = true,
+    "TLSSkipVerify"        = true,
+    "TLSSkipClientVerify"  = true,
+  }
+  response_codes = [200]
+}
+
+resource "terracurl_request" "portainer_env_gizmo" {
+  name            = "portainer_env_gizmo"
+  depends_on      = [terracurl_request.portainer_git_credentials]
+  url             = "https://${var.portainer_hostname}:9443/api/endpoints"
+  skip_tls_verify = true
+  method          = "POST"
+  headers = {
+    Authorization = "Bearer ${local.portainer_jwt_token}"
+    Content-Type  = "application/json"
+  }
+  request_parameters = {
+    "Name"                 = "gizmo-docker",
+    "EndpointCreationType" = 2,
+    "URL"                  = "https://gizmo-docker-1.buzzdavidson.com:9001",
+    "TLS"                  = true,
+    "TLSSkipVerify"        = true,
+    "TLSSkipClientVerify"  = true,
+  }
+  response_codes = [200]
 }
