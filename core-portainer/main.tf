@@ -79,7 +79,7 @@ resource "null_resource" "install_portainer_agent" {
 }
 
 resource "null_resource" "wait_for_portainer" {
-  depends_on = [terracurl_request.portainer_stack_core]
+  depends_on = [null_resource.install_portainer_agent]
   provisioner "local-exec" {
     command = "sleep 30"
   }
@@ -267,7 +267,7 @@ locals {
 
 resource "terracurl_request" "portainer_env_home" {
   name            = "portainer_env_home"
-  depends_on      = [terracurl_request.portainer_git_credentials]
+  depends_on      = [terracurl_request.portainer_env_core]
   url             = "https://${var.portainer_hostname}:9443/api/endpoints"
   skip_tls_verify = true
   method          = "POST"
@@ -292,7 +292,7 @@ locals {
 
 resource "terracurl_request" "portainer_env_gizmo" {
   name            = "portainer_env_gizmo"
-  depends_on      = [terracurl_request.portainer_git_credentials]
+  depends_on      = [terracurl_request.portainer_env_home]
   url             = "https://${var.portainer_hostname}:9443/api/endpoints"
   skip_tls_verify = true
   method          = "POST"
@@ -315,7 +315,7 @@ locals {
   portainer_env_gizmo_id = jsondecode(resource.terracurl_request.portainer_env_gizmo.response)["Id"]
 }
 
-resource "terracurl_request" "portainer_stack_core" {
+resource "terracurl_request" "portainer_stack_core_admin" {
   name            = "portainer_stack_core_admin"
   depends_on      = [terracurl_request.portainer_env_core]
   url             = "https://${var.portainer_hostname}:9443/api/stacks/create/standalone/repository"
@@ -344,7 +344,8 @@ resource "terracurl_request" "portainer_stack_core" {
       {
         "name"  = "CF_DNS_API_TOKEN",
         "value" = "${var.cloudflare_access_key}"
-    }, ]
+      },
+    ]
   })
   response_codes = [200]
   timeout        = 120
