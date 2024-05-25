@@ -340,8 +340,12 @@ resource "terracurl_request" "portainer_stack_core" {
     "repositoryGitCredentialId" = "${local.portainer_git_credentials_id}",
     "repositoryReferenceName"   = "${local.homelab_monorepo_ref}",
     "repositoryUrl"             = "${local.homelab_monorepo_url}",
+    "env" = [
+      {
+        "name"  = "CF_DNS_API_TOKEN",
+        "value" = "${var.cloudflare_access_key}"
+    }, ]
   })
   response_codes = [200]
   timeout        = 120
-
 }

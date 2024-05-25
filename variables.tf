@@ -372,6 +372,12 @@ variable "github_access_token" {
   sensitive   = true
 }
 
+variable "cloudflare_access_key" {
+  type        = string
+  description = "Cloudflare access key for API access"
+  sensitive   = true
+}
+
 
 
 

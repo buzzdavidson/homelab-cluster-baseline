@@ -64,6 +64,7 @@ module "core-portainer" {
   portainer_license_key         = var.portainer_license_key
   github_access_token           = var.github_access_token
   docker_hosts                  = var.docker_hosts
+  cloudflare_access_key         = var.cloudflare_access_key
   providers = {
     dns       = dns
     terracurl = terracurl
