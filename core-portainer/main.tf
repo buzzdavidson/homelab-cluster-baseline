@@ -5,6 +5,7 @@
 #
 # https://www.hashicorp.com/blog/writing-terraform-for-unsupported-resources
 #===============================================================================
+
 resource "null_resource" "install_portainer" {
   triggers = {
     portainer_hostname = var.portainer_hostname
@@ -85,35 +86,29 @@ resource "null_resource" "wait_for_portainer" {
   }
 }
 
-data "http" "portainer_init_admin_user" {
-  depends_on = [null_resource.wait_for_portainer]
-  url        = "https://${var.portainer_hostname}:9443/api/users/admin/init"
-  insecure   = true
-  method     = "POST"
-  request_headers = {
+resource "terracurl_request" "portainer_init_admin_user" {
+  name            = "portainer_init_admin_user"
+  depends_on      = [null_resource.wait_for_portainer]
+  url             = "https://${var.portainer_hostname}:9443/api/users/admin/init"
+  skip_tls_verify = true
+  method          = "POST"
+  headers = {
     Content-Type = "application/json"
   }
-  request_body = jsonencode({
-    "Username" = "admin",
-    "Password" = var.portainer_admin_password
+  request_body = jsonencode(
+    {
+      "Username" = "admin",
+      "Password" = var.portainer_admin_password
   })
+  response_codes = [200, 409]
 }
 
-resource "null_resource" "check_portainer_init_admin_user" {
-  # This will return a 409 if the user already exists, that's fine
-  #
-  # On success, this will attempt to execute the true command in the
-  # shell environment running terraform.
-  # On failure, this will attempt to execute the false command in the
-  # shell environment running terraform.
-  depends_on = [data.http.portainer_init_admin_user]
-  provisioner "local-exec" {
-    command = contains([200, 409], data.http.portainer_init_admin_user.status_code)
-  }
+locals {
+  initial_run = contains(data.terracurl_request.portainer_init_admin_user.response, 200)
 }
 
 data "http" "portainer_login_admin_user" {
-  depends_on = [null_resource.check_portainer_init_admin_user]
+  depends_on = [terracurl_request.portainer_init_admin_user]
   url        = "https://${var.portainer_hostname}:9443/api/auth"
   insecure   = true
   method     = "POST"
@@ -133,6 +128,7 @@ locals {
   homelab_monorepo_ref   = "refs/heads/main"
 }
 
+# Note: Already idempotent
 resource "terracurl_request" "portainer_user_settings" {
   name            = "portainer_user_settings"
   depends_on      = [data.http.portainer_login_admin_user]
@@ -152,8 +148,10 @@ resource "terracurl_request" "portainer_user_settings" {
   response_codes = [200]
 }
 
+# Note: Already idempotent
 resource "terracurl_request" "portainer_license" {
   name            = "portainer_license"
+  count           = local.initial_run ? 1 : 0
   depends_on      = [terracurl_request.portainer_user_settings]
   url             = "https://${var.portainer_hostname}:9443/api/licenses/add"
   skip_tls_verify = true
@@ -169,8 +167,10 @@ resource "terracurl_request" "portainer_license" {
   response_codes = [200]
 }
 
+# Note: Only run on first execution
 resource "terracurl_request" "portainer_settings_blacklist" {
   name            = "portainer_settings_blacklist"
+  count           = local.initial_run ? 1 : 0
   depends_on      = [terracurl_request.portainer_license]
   url             = "https://${var.portainer_hostname}:9443/api/settings"
   skip_tls_verify = true
@@ -185,6 +185,7 @@ resource "terracurl_request" "portainer_settings_blacklist" {
   response_codes = [200]
 }
 
+# Note: Already idempotent
 resource "terracurl_request" "portainer_settings_experimental" {
   name            = "portainer_settings_experimental"
   depends_on      = [terracurl_request.portainer_settings_blacklist]
@@ -201,6 +202,7 @@ resource "terracurl_request" "portainer_settings_experimental" {
   response_codes = [204]
 }
 
+# Note: Already idempotent
 data "terracurl_request" "portainer_openai_key" {
   name            = "portainer_openai_key"
   depends_on      = [terracurl_request.portainer_settings_experimental]
@@ -217,8 +219,10 @@ data "terracurl_request" "portainer_openai_key" {
   response_codes = [204]
 }
 
+# TODO: check if credentials already exist; if so, set the count of this resource to 0, otherwise 1
+# TODO: we need another ssolution here, we need the credential id for later
 resource "terracurl_request" "portainer_git_credentials" {
-  name            = "portainer_git_credentials"
+  name  = "portainer_git_credentials"
   depends_on      = [data.terracurl_request.portainer_openai_key]
   url             = "https://${var.portainer_hostname}:9443/api/users/${local.portainer_admin_userid}/gitcredentials"
   skip_tls_verify = true
@@ -240,6 +244,8 @@ locals {
   portainer_git_credentials_id = jsondecode(resource.terracurl_request.portainer_git_credentials.response)["gitCredential"]["id"]
 }
 
+# TODO: check if environment already exist; if so, set the count of this resource to 0, otherwise 1
+# Note: this could be made a submodule to make it more DRY
 resource "terracurl_request" "portainer_env_core" {
   name            = "portainer_env_core"
   depends_on      = [terracurl_request.portainer_git_credentials]
@@ -265,6 +271,7 @@ locals {
   portainer_env_core_id = jsondecode(resource.terracurl_request.portainer_env_core.response)["Id"]
 }
 
+# TODO: check if environment already exist; if so, set the count of this resource to 0, otherwise 1
 resource "terracurl_request" "portainer_env_home" {
   name            = "portainer_env_home"
   depends_on      = [terracurl_request.portainer_env_core]
@@ -289,7 +296,7 @@ resource "terracurl_request" "portainer_env_home" {
 locals {
   portainer_env_home_id = jsondecode(resource.terracurl_request.portainer_env_home.response)["Id"]
 }
-
+# TODO: check if environment already exist; if so, set the count of this resource to 0, otherwise 1
 resource "terracurl_request" "portainer_env_gizmo" {
   name            = "portainer_env_gizmo"
   depends_on      = [terracurl_request.portainer_env_home]
@@ -315,6 +322,7 @@ locals {
   portainer_env_gizmo_id = jsondecode(resource.terracurl_request.portainer_env_gizmo.response)["Id"]
 }
 
+# TODO: check if stack already exist; if so, set the count of this resource to 0, otherwise 1
 resource "terracurl_request" "portainer_stack_core_admin" {
   name            = "portainer_stack_core_admin"
   depends_on      = [terracurl_request.portainer_env_core]
